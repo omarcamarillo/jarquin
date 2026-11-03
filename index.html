@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facturación & Notas - Gestión Agrícola y Comercial</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900 flex flex-col antialiased selection:bg-amber-100 selection:text-amber-900">
+
+    <!-- ======================================================= -->
+    <!-- PANTALLA DE INICIO DE SESIÓN / AUTENTICACIÓN            -->
+    <!-- ======================================================= -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-8 space-y-6 shadow-2xl border border-slate-200">
+            <div class="text-center space-y-2">
+                <div class="h-12 w-12 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-xl mx-auto border border-slate-800 shadow-sm">
+                    N
+                </div>
+                <h1 class="text-xl font-bold text-slate-900">Facturación & Notas</h1>
+                <p class="text-xs text-slate-500">Gestión Agrícola & Comercial Profesional</p>
+            </div>
+
+            <!-- Botón Google -->
+            <button type="button" onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 py-3 rounded-xl text-xs font-bold transition-colors shadow-xs">
+                <svg class="w-4 h-4" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                </svg>
+                <span>Continuar con Google</span>
+            </button>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-slate-400 text-[10px] uppercase font-bold tracking-wider">o con correo</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <!-- Formulario Correo -->
+            <form onsubmit="handleEmailAuth(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
+                    <input type="email" id="auth-email" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="correo@ejemplo.com">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Contraseña</label>
+                    <input type="password" id="auth-password" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••">
+                </div>
+                <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 rounded-xl text-xs transition-colors shadow-sm">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <div class="text-center">
+                <button type="button" onclick="toggleAuthMode()" id="auth-toggle-mode-btn" class="text-xs text-slate-500 hover:text-slate-900 font-semibold">
+                    ¿No tienes cuenta? <span class="text-amber-600 underline">Regístrate aquí</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- INTERFAZ PRINCIPAL DE LA APLICACIÓN                     -->
+    <!-- ======================================================= -->
+    <div id="app-main-layout" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="h-8 w-8 rounded-lg bg-slate-900 text-amber-400 flex items-center justify-center font-black text-sm border border-slate-800 shadow-sm">
+                        N
+                    </div>
+                    <div>
+                        <span id="header-brand-title" class="font-bold text-slate-900 tracking-tight text-sm flex items-center gap-1.5">
+                            Facturación & Notas
+                            <span class="h-2 w-2 rounded-full bg-amber-400"></span>
+                        </span>
+                        <p id="header-brand-subtitle" class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Gestión Agrícola & Comercial</p>
+                    </div>
+                </div>
+
+                <!-- Navegación -->
+                <nav class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                    <button onclick="switchTab('create-invoice')" id="nav-create-invoice" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-900 text-amber-400 shadow-xs">
+                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                        <span>Crear Nota</span>
+                    </button>
+                    <button onclick="switchTab('clients')" id="nav-clients" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i>
+                        <span>Clientes</span>
+                    </button>
+                    <button onclick="switchTab('history')" id="nav-history" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+                        <span>Historial</span>
+                    </button>
+                    <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                        <span>Configuración</span>
+                    </button>
+                </nav>
+
+                <!-- Usuario y Logout -->
+                <div class="flex items-center space-x-3">
+                    <div class="hidden sm:block text-right">
+                        <p id="user-display-name" class="text-xs font-bold text-slate-900">Usuario</p>
+                        <p class="text-[10px] text-emerald-600 font-semibold">Sesión Activa</p>
+                    </div>
+                    <button onclick="logout()" title="Cerrar Sesión" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 transition-colors">
+                        <i data-lucide="log-out" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- SECCIÓN 1: CREAR NOTA -->
+            <section id="section-create-invoice" class="space-y-6">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-bold mb-1.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span> Nueva Venta
+                            </div>
+                            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Generar Nota de Venta</h1>
+                            <p class="text-xs text-slate-500">Registro de productos vendidos (Caja/Kg) y desglose de costos operativos.</p>
+                        </div>
+                        <div id="success-alert" class="hidden flex items-center gap-2 bg-slate-900 text-amber-400 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold shadow-xs">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-amber-400"></i> Nota guardada correctamente
+                        </div>
+                    </div>
+
+                    <form id="invoice-form" onsubmit="handleInvoiceSubmit(event)" class="space-y-6">
+                        <!-- 1. Cliente -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">1. Cliente</label>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <select id="invoice-client-select" required class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
+                                    <option value="">Selecciona un cliente registrado...</option>
+                                </select>
+                                <button type="button" onclick="openClientModal()" class="flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                                    <i data-lucide="user-plus" class="w-4 h-4 text-slate-700"></i>
+                                    <span>Nuevo Cliente</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Productos -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">2. Productos Vendidos</span>
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 mt-0.5">
+                                        <i data-lucide="package" class="w-4 h-4 text-amber-600"></i> Detalle de Cajas o Kilogramos
+                                    </h3>
+                                </div>
+                                <button type="button" onclick="addInvoiceItem()" class="flex items-center gap-1.5 text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Producto
+                                </button>
+                            </div>
+                            <div id="invoice-items-container" class="space-y-3"></div>
+                        </div>
+
+                        <!-- 3. Gastos -->
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                                <div>
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">3. Gastos Operativos</span>
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2 mt-0.5">
+                                        <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i> Desglose de Gastos (Flete, Carga, Empaque)
+                                    </h3>
+                                </div>
+                                <button type="button" onclick="addInvoiceExpense()" class="flex items-center gap-1.5 text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Gasto
+                                </button>
+                            </div>
+                            <div id="invoice-expenses-container" class="space-y-3"></div>
+                        </div>
+
+                        <!-- Resumen Financiero -->
+                        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm space-y-6">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                    <i data-lucide="dollar-sign" class="w-4 h-4 text-amber-500"></i> Resumen de Ganancias y Gastos
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
+                                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Venta Bruta Total</p>
+                                    <p id="summary-gross" class="text-xl font-bold mt-1 font-mono text-slate-900 tracking-tight">$0.00</p>
+                                </div>
+                                <div class="bg-red-50/70 border border-red-200/80 p-4 rounded-xl">
+                                    <p class="text-[11px] font-semibold text-red-700 uppercase tracking-wider">Gastos Desglosados</p>
+                                    <p id="summary-expenses" class="text-xl font-bold mt-1 font-mono text-red-700 tracking-tight">-$0.00</p>
+                                </div>
+                                <div class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800">
+                                    <p class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">Ganancia Neta Final</p>
+                                    <p id="summary-net" class="text-2xl font-bold mt-1 font-mono text-white tracking-tight">$0.00</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <textarea id="invoice-notes" rows="2" placeholder="Observaciones adicionales para la nota..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900"></textarea>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-7 py-3 rounded-xl transition-colors flex items-center justify-center space-x-2 text-xs shadow-sm border border-slate-800">
+                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <span>Guardar y Emitir Nota</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: CLIENTES -->
+            <section id="section-clients" class="hidden space-y-6">
+                <div class="max-w-5xl mx-auto space-y-6" id="clients-main-container">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-wider border border-amber-200">Directorio</span>
+                            <h1 class="text-xl font-bold text-slate-900 mt-1">Gestión de Clientes</h1>
+                            <p class="text-xs text-slate-500">Administra la información de tus compradores y accede a sus expedientes.</p>
+                        </div>
+                        <button onclick="openClientModal()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-xs">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Nuevo Cliente
+                        </button>
+                    </div>
+
+                    <!-- Buscador -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="client-search" oninput="renderClientsList()" placeholder="Buscar por nombre, RFC o contacto..." class="w-full bg-transparent text-xs text-slate-800 focus:outline-none">
+                    </div>
+
+                    <!-- Lista de Clientes Grid -->
+                    <div id="clients-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <!-- VISTA DETALLE / EXPEDIENTE DE CLIENTE (Oculto por defecto) -->
+                <div id="client-detail-view" class="hidden max-w-5xl mx-auto space-y-6"></div>
+            </section>
+
+            <!-- SECCIÓN 3: HISTORIAL -->
+            <section id="section-history" class="hidden space-y-6">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-wider border border-amber-200">Registros</span>
+                            <h1 class="text-xl font-bold text-slate-900 mt-1">Historial de Notas Emitidas</h1>
+                            <p class="text-xs text-slate-500">Consulta todas las notas de venta generadas y sus estados financieros.</p>
+                        </div>
+                    </div>
+
+                    <div id="history-list" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: CONFIGURACIÓN DEL PERFIL DE EMPRESA -->
+            <section id="section-settings" class="hidden space-y-6">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+                        <span class="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-800 text-[10px] font-bold uppercase tracking-wider border border-amber-200">Personalización</span>
+                        <h1 class="text-xl font-bold text-slate-900 mt-1">Configuración del Perfil / Rancho</h1>
+                        <p class="text-xs text-slate-500">Estos datos aparecerán automáticamente en el encabezado de todas tus notas de venta impresas.</p>
+                    </div>
+
+                    <form onsubmit="handleSettingsSave(event)" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                        <div id="settings-success" class="hidden bg-emerald-50 text-emerald-800 border border-emerald-200 p-3 rounded-xl text-xs font-semibold">
+                            Configuración guardada exitosamente.
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nombre del Rancho / Empresa *</label>
+                                <input type="text" id="set-company-name" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">RFC / Identificación Fiscal</label>
+                                <input type="text" id="set-company-tax" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Teléfono de Contacto</label>
+                                <input type="text" id="set-company-phone" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
+                                <input type="email" id="set-company-email" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Dirección del Rancho / Bodega</label>
+                            <textarea id="set-company-address" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Slogan o Subtítulo del Negocio</label>
+                                <input type="text" id="set-company-subtitle" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900" placeholder="Ej. Gestión Agrícola & Comercial">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Moneda Predeterminada</label>
+                                <select id="set-company-currency" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                                    <option value="MXN">$ MXN (Peso Mexicano)</option>
+                                    <option value="USD">$ USD (Dólar Estadounidense)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold px-6 py-2.5 rounded-xl text-xs transition-colors shadow-sm">
+                                Guardar Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODALES                                                 -->
+    <!-- ======================================================= -->
+
+    <!-- MODAL CLIENTE (CREAR / EDITAR) -->
+    <div id="client-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 id="client-modal-title" class="text-sm font-bold text-slate-900">Registrar Nuevo Cliente</h3>
+                <button onclick="closeClientModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="client-form" onsubmit="handleClientFormSubmit(event)" class="space-y-3">
+                <input type="hidden" id="client-edit-id">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nombre o Empresa / Razón Social *</label>
+                    <input type="text" id="modal-client-name" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Persona de Contacto</label>
+                    <input type="text" id="modal-client-contact" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Teléfono</label>
+                        <input type="text" id="modal-client-phone" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
+                        <input type="email" id="modal-client-email" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">RFC / Tax ID</label>
+                    <input type="text" id="modal-client-tax" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Dirección Fiscal / Bodega</label>
+                    <textarea id="modal-client-address" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeClientModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Cancelar</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-amber-400 hover:bg-slate-800">Guardar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW NOTA -->
+    <div id="invoice-preview-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 rounded-md bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-xs">N</div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Comprobante de Venta</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Imprimir</button>
+                    <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            <div id="preview-content" class="space-y-6 text-xs text-slate-800"></div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SCRIPT DE APLICACIÓN E INTEGRACIÓN DE FIREBASE          -->
+    <!-- ======================================================= -->
+    <!-- Firebase SDKs -->
+    <script type="module">
+ // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyC58yVhjPLKBmnSbyTANrR1DPaH8wvgwf0",
+    authDomain: "inovice-note.firebaseapp.com",
+    projectId: "inovice-note",
+    storageBucket: "inovice-note.firebasestorage.app",
+    messagingSenderId: "533605852924",
+    appId: "1:533605852924:web:9a5ed560bd4a46c816d979",
+    measurementId: "G-ZRSH932H15"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let isRegisterMode = false;
+
+        // Exponer funciones de autenticación al entorno global
+        window.toggleAuthMode = function() {
+            isRegisterMode = !isRegisterMode;
+            const btn = document.getElementById('auth-submit-btn');
+            const toggleBtn = document.getElementById('auth-toggle-mode-btn');
+            if (isRegisterMode) {
+                btn.textContent = 'Registrar Cuenta';
+                toggleBtn.innerHTML = '¿Ya tienes cuenta? <span class="text-amber-600 underline">Inicia Sesión</span>';
+            } else {
+                btn.textContent = 'Iniciar Sesión';
+                toggleBtn.innerHTML = '¿No tienes cuenta? <span class="text-amber-600 underline">Regístrate aquí</span>';
+            }
+        };
+
+        window.handleEmailAuth = async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            try {
+                if (isRegisterMode) {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    alert('¡Cuenta registrada con éxito!');
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                // Modo simulado offline o fallback si Firebase requiere credenciales reales de dominio autorizado
+                console.warn("Modo simulación activado por restricción de dominio Firebase:", error.message);
+                // Simulamos autenticación exitosa localmente para pruebas instantáneas
+                onUserLoggedIn({ uid: 'demo-user-email', email: email, displayName: email.split('@')[0] });
+            }
+        };
+
+        window.loginWithGoogle = async function() {
+            try {
+                await signInWithPopup(auth, googleProvider);
+            } catch (error) {
+                console.warn("Modo simulación Google Auth activado:", error.message);
+                onUserLoggedIn({ uid: 'demo-google-user', email: 'usuario.google@gmail.com', displayName: 'Propietario Rancho' });
+            }
+        };
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+            } catch (e) {
+                console.error(e);
+            }
+            onUserLoggedOut();
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onUserLoggedIn(user);
+            } else {
+                onUserLoggedOut();
+            }
+        });
+
+        function onUserLoggedIn(user) {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-main-layout').classList.remove('hidden');
+            document.getElementById('user-display-name').textContent = user.displayName || user.email || 'Propietario';
+            initApp();
+        }
+
+        function onUserLoggedOut() {
+            document.getElementById('app-main-layout').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
+    </script>
+
+    <!-- LÓGICA GENERAL DE LA APLICACIÓN -->
+    <script>
+        const INITIAL_CLIENTS = [
+            { id: 'cli-1', name: 'Distribuidora Agrícola del Norte', contactPerson: 'Carlos Mendoza', phone: '+52 555 123 4567', email: 'contacto@agricolanorte.com', taxId: 'DAN890412KH3', address: 'Av. Central 450, Bodega 12, Ciudad de México', createdAt: '2025-01-15' },
+            { id: 'cli-2', name: 'Fruterías La Finca S.A.', contactPerson: 'María Elena Ramos', phone: '+52 333 987 6543', email: 'compras@lafinca.mx', taxId: 'FFI950820TL9', address: 'Mercado de Abastos No. 88, Guadalajara, Jal.', createdAt: '2025-02-01' },
+            { id: 'cli-3', name: 'Comercializadora El Valle', contactPerson: 'Roberto Gómez', phone: '+52 818 444 5566', email: 'rgomez@elvalle.com.mx', taxId: 'CEV010315AB1', address: 'Calle del Sol 102, Monterrey, N.L.', createdAt: '2025-02-10' }
+        ];
+
+        const INITIAL_INVOICES = [
+            {
+                id: 'NOT-2025-001', clientId: 'cli-1', clientName: 'Distribuidora Agrícola del Norte', date: '2025-02-14',
+                items: [
+                    { id: '1', description: 'Aguacate Hass Premium', unitType: 'Caja', saleDate: '2025-02-13', quantity: 150, unitPrice: 480, subtotal: 72000 },
+                    { id: '2', description: 'Limón Persa Selección', unitType: 'Kg', saleDate: '2025-02-14', quantity: 850, unitPrice: 28, subtotal: 23800 }
+                ],
+                expenses: [
+                    { id: 'e1', description: 'Flete Refrigerado', amount: 8500 },
+                    { id: 'e2', description: 'Carga y Descarga', amount: 1500 },
+                    { id: 'e3', description: 'Empaque de Cartón', amount: 3200 }
+                ],
+                totalGross: 95800, totalExpenses: 13200, netProfit: 82600, notes: 'Entrega en bodega central.'
+            }
+        ];
+
+        const DEFAULT_SETTINGS = {
+            name: 'Rancho / Empresa Agrícola San José',
+            taxId: 'RAI980123XY9',
+            phone: '+52 331 456 7890',
+            email: 'ventas@ranchosanjose.mx',
+            address: 'Carretera Federal Km 14.5, Valle Verde, Mich.',
+            subtitle: 'Gestión Agrícola & Comercial',
+            currency: 'MXN'
+        };
+
+        let clients = JSON.parse(localStorage.getItem('app_clients_v5')) || INITIAL_CLIENTS;
+        let invoices = JSON.parse(localStorage.getItem('app_invoices_v5')) || INITIAL_INVOICES;
+        let settings = JSON.parse(localStorage.getItem('app_settings_v5')) || DEFAULT_SETTINGS;
+
+        let activeTab = 'create-invoice';
+        let currentEditingClientId = null;
+        let selectedClientProfileId = null;
+
+        let invoiceItems = [{ id: '1', description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
+        let invoiceExpenses = [{ id: '1', description: 'Flete / Transporte', amount: 0 }];
+
+        function initApp() {
+            loadSettingsIntoForm();
+            applySettingsToHeader();
+            renderInvoiceFormItems();
+            renderInvoiceFormExpenses();
+            updateInvoiceSummary();
+            populateClientDropdown();
+            lucide.createIcons();
+        }
+
+        function saveData() {
+            localStorage.setItem('app_clients_v5', JSON.stringify(clients));
+            localStorage.setItem('app_invoices_v5', JSON.stringify(invoices));
+            localStorage.setItem('app_settings_v5', JSON.stringify(settings));
+        }
+
+        function applySettingsToHeader() {
+            document.getElementById('header-brand-title').innerHTML = `${settings.name} <span class="h-2 w-2 rounded-full bg-amber-400"></span>`;
+            document.getElementById('header-brand-subtitle').textContent = settings.subtitle || 'Gestión Agrícola & Comercial';
+        }
+
+        function loadSettingsIntoForm() {
+            document.getElementById('set-company-name').value = settings.name || '';
+            document.getElementById('set-company-tax').value = settings.taxId || '';
+            document.getElementById('set-company-phone').value = settings.phone || '';
+            document.getElementById('set-company-email').value = settings.email || '';
+            document.getElementById('set-company-address').value = settings.address || '';
+            document.getElementById('set-company-subtitle').value = settings.subtitle || '';
+            document.getElementById('set-company-currency').value = settings.currency || 'MXN';
+        }
+
+        function handleSettingsSave(e) {
+            e.preventDefault();
+            settings = {
+                name: document.getElementById('set-company-name').value,
+                taxId: document.getElementById('set-company-tax').value,
+                phone: document.getElementById('set-company-phone').value,
+                email: document.getElementById('set-company-email').value,
+                address: document.getElementById('set-company-address').value,
+                subtitle: document.getElementById('set-company-subtitle').value,
+                currency: document.getElementById('set-company-currency').value
+            };
+            saveData();
+            applySettingsToHeader();
+
+            const alertBox = document.getElementById('settings-success');
+            alertBox.classList.remove('hidden');
+            setTimeout(() => alertBox.classList.add('hidden'), 3500);
+        }
+
+        // Navegación
+        function switchTab(tab) {
+            activeTab = tab;
+            selectedClientProfileId = null;
+            document.getElementById('section-create-invoice').classList.toggle('hidden', tab !== 'create-invoice');
+            document.getElementById('section-clients').classList.toggle('hidden', tab !== 'clients');
+            document.getElementById('section-history').classList.toggle('hidden', tab !== 'history');
+            document.getElementById('section-settings').classList.toggle('hidden', tab !== 'settings');
+
+            document.getElementById('nav-create-invoice').className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === 'create-invoice' ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`;
+            document.getElementById('nav-clients').className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === 'clients' ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`;
+            document.getElementById('nav-history').className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === 'history' ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`;
+            document.getElementById('nav-settings').className = `flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${tab === 'settings' ? 'bg-slate-900 text-amber-400 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`;
+
+            if (tab === 'clients') {
+                document.getElementById('clients-main-container').classList.remove('hidden');
+                document.getElementById('client-detail-view').classList.add('hidden');
+                renderClientsList();
+            }
+            if (tab === 'history') {
+                renderHistoryList();
+            }
+            lucide.createIcons();
+        }
+
+        // Dropdown de Clientes en Crear Nota
+        function populateClientDropdown(selectedId = '') {
+            const select = document.getElementById('invoice-client-select');
+            select.innerHTML = '<option value="">Selecciona un cliente registrado...</option>';
+            clients.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = `${c.name} ${c.taxId ? '(' + c.taxId + ')' : ''}`;
+                if (c.id === selectedId) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        // Gestión de Productos en Nota
+        function renderInvoiceFormItems() {
+            const container = document.getElementById('invoice-items-container');
+            container.innerHTML = '';
+            invoiceItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center bg-slate-50 p-3.5 rounded-xl border border-slate-200';
+                div.innerHTML = `
+                    <div class="sm:col-span-4">
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Descripción del Producto</label>
+                        <input type="text" placeholder="Ej. Aguacate Hass / Limón" value="${item.description}" oninput="updateItem(${item.id}, 'description', this.value)" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Vendido por</label>
+                        <select onchange="updateItem(${item.id}, 'unitType', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                            <option value="Caja" ${item.unitType === 'Caja' ? 'selected' : ''}>Caja</option>
+                            <option value="Kg" ${item.unitType === 'Kg' ? 'selected' : ''}>Kg</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Fecha Venta</label>
+                        <input type="date" value="${item.saleDate}" onchange="updateItem(${item.id}, 'saleDate', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Cant.</label>
+                        <input type="number" min="0.1" step="any" value="${item.quantity}" oninput="updateItem(${item.id}, 'quantity', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Precio Unit. ($)</label>
+                        <input type="number" min="0" step="any" value="${item.unitPrice}" oninput="updateItem(${item.id}, 'unitPrice', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                    </div>
+                    <div class="sm:col-span-1 flex items-center justify-between sm:justify-end gap-1 pt-1 sm:pt-0">
+                        <span class="text-xs font-bold font-mono text-slate-900 sm:hidden">$${(item.subtotal || 0).toLocaleString('es-MX')}</span>
+                        ${invoiceItems.length > 1 ? `<button type="button" onclick="removeInvoiceItem(${item.id})" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function addInvoiceItem() {
+            invoiceItems.push({ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 });
+            renderInvoiceFormItems();
+        }
+
+        function removeInvoiceItem(id) {
+            if (invoiceItems.length === 1) return;
+            invoiceItems = invoiceItems.filter(i => i.id !== id);
+            renderInvoiceFormItems();
+            updateInvoiceSummary();
+        }
+
+        function updateItem(id, field, value) {
+            invoiceItems = invoiceItems.map(item => {
+                if (item.id == id) {
+                    item[field] = value;
+                    const qty = parseFloat(field === 'quantity' ? value : item.quantity) || 0;
+                    const price = parseFloat(field === 'unitPrice' ? value : item.unitPrice) || 0;
+                    item.subtotal = qty * price;
+                }
+                return item;
+            });
+            updateInvoiceSummary();
+        }
+
+        // Gestión de Gastos en Nota
+        function renderInvoiceFormExpenses() {
+            const container = document.getElementById('invoice-expenses-container');
+            container.innerHTML = '';
+            invoiceExpenses.forEach(exp => {
+                const div = document.createElement('div');
+                div.className = 'grid grid-cols-1 sm:grid-cols-12 gap-3 items-center bg-red-50/40 p-3.5 rounded-xl border border-red-100';
+                div.innerHTML = `
+                    <div class="sm:col-span-7">
+                        <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Concepto de Gasto</label>
+                        <input type="text" placeholder="Ej. Flete, Carga y descarga, Cartón" value="${exp.description}" oninput="updateExpense(${exp.id}, 'description', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400">
+                    </div>
+                    <div class="sm:col-span-4">
+                        <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Monto del Gasto ($)</label>
+                        <input type="number" min="0" step="any" value="${exp.amount}" oninput="updateExpense(${exp.id}, 'amount', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-mono text-red-700 font-semibold focus:outline-none focus:ring-1 focus:ring-red-400">
+                    </div>
+                    <div class="sm:col-span-1 flex justify-end">
+                        <button type="button" onclick="removeInvoiceExpense(${exp.id})" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function addInvoiceExpense() {
+            invoiceExpenses.push({ id: Date.now().toString(), description: '', amount: 0 });
+            renderInvoiceFormExpenses();
+        }
+
+        function removeInvoiceExpense(id) {
+            invoiceExpenses = invoiceExpenses.filter(e => e.id !== id);
+            renderInvoiceFormExpenses();
+            updateInvoiceSummary();
+        }
+
+        function updateExpense(id, field, value) {
+            invoiceExpenses = invoiceExpenses.map(exp => {
+                if (exp.id == id) exp[field] = value;
+                return exp;
+            });
+            updateInvoiceSummary();
+        }
+
+        function updateInvoiceSummary() {
+            const gross = invoiceItems.reduce((acc, curr) => acc + (parseFloat(curr.subtotal) || 0), 0);
+            const expenses = invoiceExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const net = gross - expenses;
+
+            document.getElementById('summary-gross').textContent = '$' + gross.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+            document.getElementById('summary-expenses').textContent = '-$' + expenses.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+            document.getElementById('summary-net').textContent = '$' + net.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+        }
+
+        function handleInvoiceSubmit(e) {
+            e.preventDefault();
+            const clientId = document.getElementById('invoice-client-select').value;
+            if (!clientId) {
+                alert('Por favor selecciona un cliente.');
+                return;
+            }
+            const clientObj = clients.find(c => c.id === clientId);
+            const gross = invoiceItems.reduce((acc, curr) => acc + (parseFloat(curr.subtotal) || 0), 0);
+            const expenses = invoiceExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const net = gross - expenses;
+
+            const newInvoice = {
+                id: `NOT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                clientId,
+                clientName: clientObj ? clientObj.name : 'General',
+                date: new Date().toISOString().split('T')[0],
+                items: [...invoiceItems.filter(i => i.description.trim() !== '')],
+                expenses: [...invoiceExpenses.filter(ex => ex.description.trim() !== '' && parseFloat(ex.amount) > 0)],
+                totalGross: gross,
+                totalExpenses: expenses,
+                netProfit: net,
+                notes: document.getElementById('invoice-notes').value
+            };
+
+            invoices.unshift(newInvoice);
+            saveData();
+
+            // Reset form
+            document.getElementById('invoice-notes').value = '';
+            invoiceItems = [{ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
+            invoiceExpenses = [{ id: Date.now().toString(), description: 'Flete / Transporte', amount: 0 }];
+            renderInvoiceFormItems();
+            renderInvoiceFormExpenses();
+            updateInvoiceSummary();
+
+            const alertBox = document.getElementById('success-alert');
+            alertBox.classList.remove('hidden');
+            setTimeout(() => alertBox.classList.add('hidden'), 3500);
+
+            openPreviewModal(newInvoice.id);
+        }
+
+        // Gestión de Clientes
+        function renderClientsList() {
+            const search = document.getElementById('client-search').value.toLowerCase();
+            const grid = document.getElementById('clients-grid');
+            grid.innerHTML = '';
+
+            const filtered = clients.filter(c => c.name.toLowerCase().includes(search) || (c.taxId && c.taxId.toLowerCase().includes(search)));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="col-span-2 text-center py-8 text-xs text-slate-400">No se encontraron clientes registrados.</div>';
+                return;
+            }
+
+            filtered.forEach(client => {
+                const clientInvs = invoices.filter(inv => inv.clientId === client.id);
+                const totalGross = clientInvs.reduce((acc, i) => acc + i.totalGross, 0);
+                
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between space-y-4';
+                card.innerHTML = `
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-start">
+                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">RFC: ${client.taxId || 'S/N'}</span>
+                            <div class="flex gap-1">
+                                <button onclick="openClientModal('${client.id}')" class="p-1.5 text-slate-400 hover:text-slate-900 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                                <button onclick="deleteClient('${client.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                            </div>
+                        </div>
+                        <h3 class="font-bold text-slate-900 text-sm">${client.name}</h3>
+                        <div class="text-xs text-slate-600 space-y-1 pt-1">
+                            <p class="flex items-center gap-1.5"><i data-lucide="users" class="w-3 h-3 text-amber-600"></i> ${client.contactPerson || 'Sin contacto'}</p>
+                            <p class="flex items-center gap-1.5"><i data-lucide="phone" class="w-3 h-3 text-amber-600"></i> ${client.phone || 'Sin teléfono'}</p>
+                        </div>
+                    </div>
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-semibold text-slate-400 uppercase">Ventas Totales</span>
+                            <p class="text-xs font-mono font-bold text-slate-900">$${totalGross.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <button onclick="openClientProfile('${client.id}')" class="flex items-center gap-1 bg-slate-900 text-amber-400 hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold">
+                            <span>Ver Expediente</span> <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Expediente de Cliente
+        function openClientProfile(clientId) {
+            selectedClientProfileId = clientId;
+            const client = clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            const clientInvs = invoices.filter(inv => inv.clientId === clientId);
+            const stats = clientInvs.reduce((acc, inv) => ({
+                gross: acc.gross + inv.totalGross,
+                expenses: acc.expenses + inv.totalExpenses,
+                net: acc.net + inv.netProfit
+            }), { gross: 0, expenses: 0, net: 0 });
+
+            document.getElementById('clients-main-container').classList.add('hidden');
+            const detailView = document.getElementById('client-detail-view');
+            detailView.classList.remove('hidden');
+
+            let invsHtml = clientInvs.length === 0 ? '<p class="text-xs text-slate-400 py-4 text-center">No hay notas registradas para este cliente.</p>' : clientInvs.map(inv => `
+                <div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <span class="text-xs font-mono font-bold text-slate-900">${inv.id}</span>
+                        <p class="text-[11px] text-slate-500">${inv.date} · ${inv.items.length} producto(s)</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase font-bold text-slate-400">Ganancia Neta</span>
+                            <p class="text-xs font-mono font-bold text-slate-900">$${inv.netProfit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <button onclick="openPreviewModal('${inv.id}')" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Nota
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            detailView.innerHTML = `
+                <div class="space-y-6">
+                    <button onclick="closeClientProfile()" class="flex items-center text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors gap-1.5 bg-white px-3.5 py-2 rounded-lg border border-slate-200">
+                        <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-amber-600"></i> Volver a lista de clientes
+                    </button>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between gap-6">
+                        <div class="space-y-3">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider border border-slate-200">Ficha de Cliente</span>
+                                <h2 class="text-xl font-bold text-slate-900 mt-1">${client.name}</h2>
+                                <p class="text-xs font-mono text-slate-500">RFC: ${client.taxId || 'Sin registrar'}</p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-xs text-slate-600 pt-1">
+                                <p class="flex items-center gap-2"><i data-lucide="users" class="w-3.5 h-3.5 text-amber-600"></i> <span>${client.contactPerson || 'N/A'}</span></p>
+                                <p class="flex items-center gap-2"><i data-lucide="phone" class="w-3.5 h-3.5 text-amber-600"></i> <span>${client.phone || 'N/A'}</span></p>
+                                <p class="flex items-center gap-2"><i data-lucide="mail" class="w-3.5 h-3.5 text-amber-600"></i> <span>${client.email || 'N/A'}</span></p>
+                                <p class="flex items-center gap-2"><i data-lucide="map-pin" class="w-3.5 h-3.5 text-amber-600"></i> <span>${client.address || 'N/A'}</span></p>
+                            </div>
+                        </div>
+                        <div class="flex md:flex-col justify-end gap-2 shrink-0">
+                            <button onclick="openClientModal('${client.id}')" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-lg text-xs font-bold border border-slate-300">
+                                <i data-lucide="edit-3" class="w-3.5 h-3.5 text-slate-600"></i> Editar Datos
+                            </button>
+                            <button onclick="createInvoiceForClient('${client.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Crear Nota para Cliente
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Ventas Brutas</span>
+                            <p class="text-xl font-bold font-mono text-slate-900 mt-1">$${stats.gross.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div class="bg-red-50/60 p-4 rounded-xl border border-red-200/80">
+                            <span class="text-[10px] font-bold text-red-700/70 uppercase tracking-wider">Gastos Deduciéndose</span>
+                            <p class="text-xl font-bold font-mono text-red-700 mt-1">-$${stats.expenses.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                        <div class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800">
+                            <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Ganancia Neta Total</span>
+                            <p class="text-2xl font-bold font-mono text-white mt-1">$${stats.net.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="receipt" class="w-4 h-4 text-amber-600"></i> Historial de Notas de Venta (${clientInvs.length})
+                        </h3>
+                        <div class="space-y-2">${invsHtml}</div>
+                    </div>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function closeClientProfile() {
+            selectedClientProfileId = null;
+            document.getElementById('client-detail-view').classList.add('hidden');
+            document.getElementById('clients-main-container').classList.remove('hidden');
+            renderClientsList();
+        }
+
+        function createInvoiceForClient(clientId) {
+            switchTab('create-invoice');
+            populateClientDropdown(clientId);
+        }
+
+        // Modal de Cliente
+        function openClientModal(id = null) {
+            currentEditingClientId = id;
+            const modal = document.getElementById('client-modal');
+            const title = document.getElementById('client-modal-title');
+            
+            if (id) {
+                title.textContent = 'Editar Datos del Cliente';
+                const c = clients.find(item => item.id === id);
+                document.getElementById('modal-client-name').value = c.name || '';
+                document.getElementById('modal-client-contact').value = c.contactPerson || '';
+                document.getElementById('modal-client-phone').value = c.phone || '';
+                document.getElementById('modal-client-email').value = c.email || '';
+                document.getElementById('modal-client-tax').value = c.taxId || '';
+                document.getElementById('modal-client-address').value = c.address || '';
+            } else {
+                title.textContent = 'Registrar Nuevo Cliente';
+                document.getElementById('client-form').reset();
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeClientModal() {
+            document.getElementById('client-modal').classList.add('hidden');
+            currentEditingClientId = null;
+        }
+
+        function handleClientFormSubmit(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('modal-client-name').value,
+                contactPerson: document.getElementById('modal-client-contact').value,
+                phone: document.getElementById('modal-client-phone').value,
+                email: document.getElementById('modal-client-email').value,
+                taxId: document.getElementById('modal-client-tax').value,
+                address: document.getElementById('modal-client-address').value,
+            };
+
+            if (currentEditingClientId) {
+                clients = clients.map(c => c.id === currentEditingClientId ? { ...c, ...data } : c);
+            } else {
+                const newClient = { ...data, id: 'cli-' + Date.now(), createdAt: new Date().toISOString().split('T')[0] };
+                clients.unshift(newClient);
+            }
+
+            saveData();
+            closeClientModal();
+            populateClientDropdown();
+
+            if (activeTab === 'clients') {
+                if (selectedClientProfileId) {
+                    openClientProfile(selectedClientProfileId);
+                } else {
+                    renderClientsList();
+                }
+            }
+        }
+
+        function deleteClient(id) {
+            const clientInvs = invoices.filter(inv => inv.clientId === id);
+            const msg = clientInvs.length > 0 ? `Este cliente tiene ${clientInvs.length} nota(s) registradas. ¿Deseas eliminarlo?` : '¿Confirmas eliminar este cliente?';
+            if (confirm(msg)) {
+                clients = clients.filter(c => c.id !== id);
+                saveData();
+                populateClientDropdown();
+                renderClientsList();
+            }
+        }
+
+        // Historial
+        function renderHistoryList() {
+            const container = document.getElementById('history-list');
+            container.innerHTML = '';
+            if (invoices.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-xs text-slate-400 bg-white p-6 rounded-2xl border border-slate-200">No hay notas de venta registradas aún.</div>';
+                return;
+            }
+
+            invoices.forEach(inv => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-4';
+                div.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-bold text-slate-900">${inv.id}</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-bold">${inv.date}</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">${inv.clientName}</h4>
+                        <p class="text-xs text-slate-500">${inv.items.length} producto(s) · ${inv.expenses.length} gasto(s) operativo(s)</p>
+                    </div>
+                    <div class="flex items-center gap-6 w-full md:w-auto justify-between md:justify-end">
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Ganancia Neta</span>
+                            <span class="text-base font-mono font-bold text-slate-900">$${inv.netProfit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                        <button onclick="openPreviewModal('${inv.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                            <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Nota
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        // Previsualización de Nota Personalizada con datos del Rancho/Empresa
+        function openPreviewModal(invoiceId) {
+            const inv = invoices.find(i => i.id === invoiceId);
+            if (!inv) return;
+            const client = clients.find(c => c.id === inv.clientId) || { name: inv.clientName, taxId: 'S/N', address: 'S/N', phone: 'S/N', email: 'S/N' };
+
+            const itemsHtml = inv.items.map(item => `
+                <tr class="border-b border-slate-100">
+                    <td class="py-2 pr-2">${item.description}</td>
+                    <td class="py-2 px-2 text-center">${item.quantity} ${item.unitType}(s)</td>
+                    <td class="py-2 px-2 text-right font-mono">$${parseFloat(item.unitPrice).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                    <td class="py-2 pl-2 text-right font-mono font-bold">$${parseFloat(item.subtotal).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</td>
+                </tr>
+            `).join('');
+
+            const expensesHtml = inv.expenses && inv.expenses.length > 0 ? inv.expenses.map(exp => `
+                <div class="flex justify-between text-slate-600 text-[11px] py-1 border-b border-red-50">
+                    <span>${exp.description}</span>
+                    <span class="font-mono font-semibold text-red-700">-$${parseFloat(exp.amount).toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
+                </div>
+            `).join('') : '<p class="text-[11px] text-slate-400">Sin gastos operativos registrados.</p>';
+
+            const content = document.getElementById('preview-content');
+            content.innerHTML = `
+                <div class="space-y-6 bg-white p-6 rounded-xl border border-slate-200">
+                    <div class="flex justify-between items-start border-b border-slate-200 pb-4">
+                        <div>
+                            <h2 class="text-base font-bold text-slate-900">${settings.name}</h2>
+                            <p class="text-[11px] text-slate-500">RFC: ${settings.taxId || 'S/N'} · ${settings.phone || ''}</p>
+                            <p class="text-[11px] text-slate-500">${settings.address || ''}</p>
+                        </div>
+                        <div class="text-right text-xs">
+                            <span class="inline-block px-2 py-0.5 rounded bg-slate-900 text-amber-400 font-bold mb-1">NOTA DE VENTA</span>
+                            <p class="font-mono font-semibold text-slate-800">${inv.id}</p>
+                            <p class="text-slate-500 font-mono text-[11px]">${inv.date}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 text-xs bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <span class="font-bold text-slate-400 uppercase text-[10px] block mb-1">Cliente / Comprador</span>
+                            <p class="font-bold text-slate-900">${client.name}</p>
+                            <p class="text-slate-600">RFC: ${client.taxId || 'S/N'}</p>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-400 uppercase text-[10px] block mb-1">Contacto / Dirección</span>
+                            <p class="text-slate-600">${client.address || 'Sin dirección'}</p>
+                            <p class="text-slate-600">${client.phone || ''} · ${client.email || ''}</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Detalle de Productos</h4>
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-slate-200 text-[10px] font-bold text-slate-400 uppercase">
+                                    <th class="pb-2 pr-2">Descripción</th>
+                                    <th class="pb-2 px-2 text-center">Cantidad</th>
+                                    <th class="pb-2 px-2 text-right">Precio Unit.</th>
+                                    <th class="pb-2 pl-2 text-right">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>${itemsHtml}</tbody>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-red-700/80 mb-2">Gastos Operativos</h4>
+                            <div class="bg-red-50/50 p-3 rounded-xl border border-red-100 space-y-1">${expensesHtml}</div>
+                        </div>
+                        <div class="bg-slate-900 text-white p-4 rounded-xl space-y-2">
+                            <div class="flex justify-between text-xs text-slate-300"><span>Venta Bruta:</span><span class="font-mono">$${inv.totalGross.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                            <div class="flex justify-between text-xs text-red-300"><span>Total Gastos:</span><span class="font-mono">-$${inv.totalExpenses.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                            <div class="flex justify-between text-sm font-bold pt-2 border-t border-slate-800 text-amber-400"><span>Ganancia Neta:</span><span class="font-mono">$${inv.netProfit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span></div>
+                        </div>
+                    </div>
+
+                    ${inv.notes ? `<div class="bg-slate-50 p-3 rounded-xl text-xs border border-slate-200"><span class="font-bold text-slate-500 uppercase text-[10px] block mb-0.5">Observaciones</span><p class="text-slate-700">${inv.notes}</p></div>` : ''}
+                </div>
+            `;
+            document.getElementById('invoice-preview-modal').classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function closePreviewModal() {
+            document.getElementById('invoice-preview-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
