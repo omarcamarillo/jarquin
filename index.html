@@ -31,7 +31,7 @@
             <div id="auth-alert" class="hidden p-3 rounded-xl text-xs font-semibold text-center"></div>
 
             <!-- Botón Google -->
-            <button type="button" onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 py-3 rounded-xl text-xs font-bold transition-colors shadow-xs">
+            <button type="button" onclick="window.loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 py-3 rounded-xl text-xs font-bold transition-colors shadow-xs">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -48,7 +48,7 @@
             </div>
 
             <!-- Formulario Correo -->
-            <form onsubmit="handleEmailAuth(event)" class="space-y-4">
+            <form onsubmit="window.handleEmailAuth(event)" class="space-y-4">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
                     <input type="email" id="auth-email" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="correo@ejemplo.com">
@@ -58,7 +58,7 @@
                     <input type="password" id="auth-password" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••">
                 </div>
                 <div id="forgot-password-container" class="text-right">
-                    <button type="button" onclick="handleForgotPassword()" class="text-[11px] text-slate-500 hover:text-slate-900 underline">¿Olvidaste tu contraseña?</button>
+                    <button type="button" onclick="window.handleForgotPassword()" class="text-[11px] text-slate-500 hover:text-slate-900 underline">¿Olvidaste tu contraseña?</button>
                 </div>
                 <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 rounded-xl text-xs transition-colors shadow-sm">
                     Iniciar Sesión
@@ -66,7 +66,7 @@
             </form>
 
             <div class="text-center">
-                <button type="button" onclick="toggleAuthMode()" id="auth-toggle-mode-btn" class="text-xs text-slate-500 hover:text-slate-900 font-semibold">
+                <button type="button" onclick="window.toggleAuthMode()" id="auth-toggle-mode-btn" class="text-xs text-slate-500 hover:text-slate-900 font-semibold">
                     ¿No tienes cuenta? <span class="text-amber-600 underline">Regístrate aquí</span>
                 </button>
             </div>
@@ -95,19 +95,19 @@
 
                 <!-- Navegación -->
                 <nav class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-                    <button onclick="switchTab('create-invoice')" id="nav-create-invoice" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-900 text-amber-400 shadow-xs">
+                    <button onclick="window.switchTab('create-invoice')" id="nav-create-invoice" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-slate-900 text-amber-400 shadow-xs">
                         <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
                         <span>Crear Nota</span>
                     </button>
-                    <button onclick="switchTab('clients')" id="nav-clients" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                    <button onclick="window.switchTab('clients')" id="nav-clients" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
                         <i data-lucide="users" class="w-3.5 h-3.5"></i>
                         <span>Clientes</span>
                     </button>
-                    <button onclick="switchTab('history')" id="nav-history" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                    <button onclick="window.switchTab('history')" id="nav-history" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
                         <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
                         <span>Historial</span>
                     </button>
-                    <button onclick="switchTab('settings')" id="nav-settings" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
+                    <button onclick="window.switchTab('settings')" id="nav-settings" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-600 hover:text-slate-900">
                         <i data-lucide="settings" class="w-3.5 h-3.5"></i>
                         <span>Configuración</span>
                     </button>
@@ -122,7 +122,7 @@
                             <p class="text-[10px] text-emerald-600 font-semibold">Sesión Activa</p>
                         </div>
                     </div>
-                    <button onclick="logout()" title="Cerrar Sesión" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 transition-colors">
+                    <button onclick="window.logout()" title="Cerrar Sesión" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 transition-colors">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -148,7 +148,7 @@
                         </div>
                     </div>
 
-                    <form id="invoice-form" onsubmit="handleInvoiceSubmit(event)" class="space-y-6">
+                    <form id="invoice-form" onsubmit="window.handleInvoiceSubmit(event)" class="space-y-6">
                         <!-- 1. Cliente -->
                         <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">1. Cliente</label>
@@ -156,7 +156,7 @@
                                 <select id="invoice-client-select" required class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900">
                                     <option value="">Selecciona un cliente registrado...</option>
                                 </select>
-                                <button type="button" onclick="openClientModal()" class="flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                                <button type="button" onclick="window.openClientModal()" class="flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
                                     <i data-lucide="user-plus" class="w-4 h-4 text-slate-700"></i>
                                     <span>Nuevo Cliente</span>
                                 </button>
@@ -172,7 +172,7 @@
                                         <i data-lucide="package" class="w-4 h-4 text-amber-600"></i> Detalle de Cajas o Kilogramos
                                     </h3>
                                 </div>
-                                <button type="button" onclick="addInvoiceItem()" class="flex items-center gap-1.5 text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                <button type="button" onclick="window.addInvoiceItem()" class="flex items-center gap-1.5 text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Producto
                                 </button>
                             </div>
@@ -188,7 +188,7 @@
                                         <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i> Desglose de Gastos (Flete, Carga, Empaque)
                                     </h3>
                                 </div>
-                                <button type="button" onclick="addInvoiceExpense()" class="flex items-center gap-1.5 text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                <button type="button" onclick="window.addInvoiceExpense()" class="flex items-center gap-1.5 text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
                                     <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Gasto
                                 </button>
                             </div>
@@ -242,7 +242,7 @@
                             <h1 class="text-xl font-bold text-slate-900 mt-1">Gestión de Clientes</h1>
                             <p class="text-xs text-slate-500">Administra la información de tus compradores y accede a sus expedientes.</p>
                         </div>
-                        <button onclick="openClientModal()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-xs">
+                        <button onclick="window.openClientModal()" class="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-xs">
                             <i data-lucide="user-plus" class="w-4 h-4"></i> Nuevo Cliente
                         </button>
                     </div>
@@ -250,7 +250,7 @@
                     <!-- Buscador -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3">
                         <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
-                        <input type="text" id="client-search" oninput="renderClientsList()" placeholder="Buscar por nombre, RFC o contacto..." class="w-full bg-transparent text-xs text-slate-800 focus:outline-none">
+                        <input type="text" id="client-search" oninput="window.renderClientsList()" placeholder="Buscar por nombre, RFC o contacto..." class="w-full bg-transparent text-xs text-slate-800 focus:outline-none">
                     </div>
 
                     <!-- Lista de Clientes Grid -->
@@ -285,7 +285,7 @@
                         <p class="text-xs text-slate-500">Estos datos aparecerán automáticamente en el encabezado de todas tus notas de venta impresas.</p>
                     </div>
 
-                    <form onsubmit="handleSettingsSave(event)" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+                    <form onsubmit="window.handleSettingsSave(event)" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
                         <div id="settings-success" class="hidden bg-emerald-50 text-emerald-800 border border-emerald-200 p-3 rounded-xl text-xs font-semibold">
                             Configuración guardada exitosamente.
                         </div>
@@ -346,9 +346,9 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
             <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                 <h3 id="client-modal-title" class="text-sm font-bold text-slate-900">Registrar Nuevo Cliente</h3>
-                <button onclick="closeClientModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+                <button onclick="window.closeClientModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
-            <form id="client-form" onsubmit="handleClientFormSubmit(event)" class="space-y-3">
+            <form id="client-form" onsubmit="window.handleClientFormSubmit(event)" class="space-y-3">
                 <input type="hidden" id="client-edit-id">
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nombre o Empresa / Razón Social *</label>
@@ -377,7 +377,7 @@
                     <textarea id="modal-client-address" rows="2" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-900"></textarea>
                 </div>
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeClientModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Cancelar</button>
+                    <button type="button" onclick="window.closeClientModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">Cancelar</button>
                     <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-amber-400 hover:bg-slate-800">Guardar Cliente</button>
                 </div>
             </form>
@@ -394,7 +394,7 @@
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="window.print()" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Imprimir</button>
-                    <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                    <button onclick="window.closePreviewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
                 </div>
             </div>
             <div id="preview-content" class="space-y-6 text-xs text-slate-800"></div>
@@ -520,7 +520,7 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                onUserLoggedIn(user);
+                await onUserLoggedIn(user);
             } else {
                 currentUser = null;
                 onUserLoggedOut();
@@ -637,7 +637,7 @@
             document.getElementById('set-company-currency').value = settings.currency || 'MXN';
         }
 
-        async function handleSettingsSave(e) {
+        window.handleSettingsSave = async function(e) {
             e.preventDefault();
             settings = {
                 name: document.getElementById('set-company-name').value,
@@ -675,7 +675,7 @@
             if (tab === 'clients') {
                 document.getElementById('clients-main-container').classList.remove('hidden');
                 document.getElementById('client-detail-view').classList.add('hidden');
-                renderClientsList();
+                window.renderClientsList();
             }
             if (tab === 'history') {
                 renderHistoryList();
@@ -704,30 +704,30 @@
                 div.innerHTML = `
                     <div class="sm:col-span-4">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Descripción del Producto</label>
-                        <input type="text" placeholder="Ej. Aguacate Hass / Limón" value="${item.description}" oninput="updateItem('${item.id}', 'description', this.value)" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="text" placeholder="Ej. Aguacate Hass / Limón" value="${item.description}" oninput="window.updateItem('${item.id}', 'description', this.value)" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Vendido por</label>
-                        <select onchange="updateItem('${item.id}', 'unitType', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <select onchange="window.updateItem('${item.id}', 'unitType', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                             <option value="Caja" ${item.unitType === 'Caja' ? 'selected' : ''}>Caja</option>
                             <option value="Kg" ${item.unitType === 'Kg' ? 'selected' : ''}>Kg</option>
                         </select>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Fecha Venta</label>
-                        <input type="date" value="${item.saleDate}" onchange="updateItem('${item.id}', 'saleDate', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="date" value="${item.saleDate}" onchange="window.updateItem('${item.id}', 'saleDate', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-1">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Cant.</label>
-                        <input type="number" min="0.1" step="any" value="${item.quantity}" oninput="updateItem('${item.id}', 'quantity', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="number" min="0.1" step="any" value="${item.quantity}" oninput="window.updateItem('${item.id}', 'quantity', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Precio Unit. ($)</label>
-                        <input type="number" min="0" step="any" value="${item.unitPrice}" oninput="updateItem('${item.id}', 'unitPrice', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="number" min="0" step="any" value="${item.unitPrice}" oninput="window.updateItem('${item.id}', 'unitPrice', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-1 flex items-center justify-between sm:justify-end gap-1 pt-1 sm:pt-0">
                         <span class="text-xs font-bold font-mono text-slate-900 sm:hidden">$${(item.subtotal || 0).toLocaleString('es-MX')}</span>
-                        ${invoiceItems.length > 1 ? `<button type="button" onclick="removeInvoiceItem('${item.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                        ${invoiceItems.length > 1 ? `<button type="button" onclick="window.removeInvoiceItem('${item.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                     </div>
                 `;
                 container.appendChild(div);
@@ -737,13 +737,13 @@
 
         window.addInvoiceItem = function() {
             invoiceItems.push({ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 });
-            renderInvoiceFormItems();
+            window.renderInvoiceFormItems();
         }
 
         window.removeInvoiceItem = function(id) {
             if (invoiceItems.length === 1) return;
             invoiceItems = invoiceItems.filter(i => i.id !== id);
-            renderInvoiceFormItems();
+            window.renderInvoiceFormItems();
             updateInvoiceSummary();
         }
 
@@ -769,14 +769,14 @@
                 div.innerHTML = `
                     <div class="sm:col-span-7">
                         <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Concepto de Gasto</label>
-                        <input type="text" placeholder="Ej. Flete, Carga y descarga, Cartón" value="${exp.description}" oninput="updateExpense('${exp.id}', 'description', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400">
+                        <input type="text" placeholder="Ej. Flete, Carga y descarga, Cartón" value="${exp.description}" oninput="window.updateExpense('${exp.id}', 'description', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400">
                     </div>
                     <div class="sm:col-span-4">
                         <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Monto del Gasto ($)</label>
-                        <input type="number" min="0" step="any" value="${exp.amount}" oninput="updateExpense('${exp.id}', 'amount', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-mono text-red-700 font-semibold focus:outline-none focus:ring-1 focus:ring-red-400">
+                        <input type="number" min="0" step="any" value="${exp.amount}" oninput="window.updateExpense('${exp.id}', 'amount', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-mono text-red-700 font-semibold focus:outline-none focus:ring-1 focus:ring-red-400">
                     </div>
                     <div class="sm:col-span-1 flex justify-end">
-                        <button type="button" onclick="removeInvoiceExpense('${exp.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button type="button" onclick="window.removeInvoiceExpense('${exp.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -786,12 +786,12 @@
 
         window.addInvoiceExpense = function() {
             invoiceExpenses.push({ id: Date.now().toString(), description: '', amount: 0 });
-            renderInvoiceFormExpenses();
+            window.renderInvoiceFormExpenses();
         }
 
         window.removeInvoiceExpense = function(id) {
             invoiceExpenses = invoiceExpenses.filter(e => e.id !== id);
-            renderInvoiceFormExpenses();
+            window.renderInvoiceFormExpenses();
             updateInvoiceSummary();
         }
 
@@ -846,15 +846,15 @@
                 document.getElementById('invoice-notes').value = '';
                 invoiceItems = [{ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
                 invoiceExpenses = [{ id: Date.now().toString(), description: 'Flete / Transporte', amount: 0 }];
-                renderInvoiceFormItems();
-                renderInvoiceFormExpenses();
+                window.renderInvoiceFormItems();
+                window.renderInvoiceFormExpenses();
                 updateInvoiceSummary();
 
                 const alertBox = document.getElementById('success-alert');
                 alertBox.classList.remove('hidden');
                 setTimeout(() => alertBox.classList.add('hidden'), 3500);
 
-                openPreviewModal(newInvoice.id);
+                window.openPreviewModal(newInvoice.id);
             } catch (e) {
                 console.error("Error al guardar la factura:", e);
                 alert("Error al guardar la factura en Firestore.");
@@ -884,8 +884,8 @@
                         <div class="flex justify-between items-start">
                             <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-bold uppercase tracking-wider">RFC: ${client.taxId || 'S/N'}</span>
                             <div class="flex gap-1">
-                                <button onclick="openClientModal('${client.id}')" class="p-1.5 text-slate-400 hover:text-slate-900 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
-                                <button onclick="deleteClient('${client.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                                <button onclick="window.openClientModal('${client.id}')" class="p-1.5 text-slate-400 hover:text-slate-900 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                                <button onclick="window.deleteClient('${client.id}')" class="p-1.5 text-slate-400 hover:text-red-600 rounded"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
                             </div>
                         </div>
                         <h3 class="font-bold text-slate-900 text-sm">${client.name}</h3>
@@ -899,7 +899,7 @@
                             <span class="text-[10px] font-semibold text-slate-400 uppercase">Ventas Totales</span>
                             <p class="text-xs font-mono font-bold text-slate-900">$${totalGross.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
                         </div>
-                        <button onclick="openClientProfile('${client.id}')" class="flex items-center gap-1 bg-slate-900 text-amber-400 hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold">
+                        <button onclick="window.openClientProfile('${client.id}')" class="flex items-center gap-1 bg-slate-900 text-amber-400 hover:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold">
                             <span>Ver Expediente</span> <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
@@ -936,7 +936,7 @@
                             <span class="text-[10px] uppercase font-bold text-slate-400">Ganancia Neta</span>
                             <p class="text-xs font-mono font-bold text-slate-900">$${inv.netProfit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</p>
                         </div>
-                        <button onclick="openPreviewModal('${inv.id}')" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300">
+                        <button onclick="window.openPreviewModal('${inv.id}')" class="flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold border border-slate-300">
                             <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Nota
                         </button>
                     </div>
@@ -945,7 +945,7 @@
 
             detailView.innerHTML = `
                 <div class="space-y-6">
-                    <button onclick="closeClientProfile()" class="flex items-center text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors gap-1.5 bg-white px-3.5 py-2 rounded-lg border border-slate-200">
+                    <button onclick="window.closeClientProfile()" class="flex items-center text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors gap-1.5 bg-white px-3.5 py-2 rounded-lg border border-slate-200">
                         <i data-lucide="arrow-left" class="w-3.5 h-3.5 text-amber-600"></i> Volver a lista de clientes
                     </button>
 
@@ -964,10 +964,10 @@
                             </div>
                         </div>
                         <div class="flex md:flex-col justify-end gap-2 shrink-0">
-                            <button onclick="openClientModal('${client.id}')" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-lg text-xs font-bold border border-slate-300">
+                            <button onclick="window.openClientModal('${client.id}')" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-4 py-2 rounded-lg text-xs font-bold border border-slate-300">
                                 <i data-lucide="edit-3" class="w-3.5 h-3.5 text-slate-600"></i> Editar Datos
                             </button>
-                            <button onclick="createInvoiceForClient('${client.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold">
+                            <button onclick="window.createInvoiceForClient('${client.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-lg text-xs font-bold">
                                 <i data-lucide="plus" class="w-3.5 h-3.5"></i> Crear Nota para Cliente
                             </button>
                         </div>
@@ -1003,11 +1003,11 @@
             selectedClientProfileId = null;
             document.getElementById('client-detail-view').classList.add('hidden');
             document.getElementById('clients-main-container').classList.remove('hidden');
-            renderClientsList();
+            window.renderClientsList();
         }
 
         window.createInvoiceForClient = function(clientId) {
-            switchTab('create-invoice');
+            window.switchTab('create-invoice');
             populateClientDropdown(clientId);
         }
 
@@ -1059,14 +1059,14 @@
                     await setDoc(doc(db, 'users', currentUser.uid, 'clients', newId), newClient);
                 }
 
-                closeClientModal();
+                window.closeClientModal();
                 populateClientDropdown();
 
                 if (activeTab === 'clients') {
                     if (selectedClientProfileId) {
-                        openClientProfile(selectedClientProfileId);
+                        window.openClientProfile(selectedClientProfileId);
                     } else {
-                        renderClientsList();
+                        window.renderClientsList();
                     }
                 }
             } catch (e) {
@@ -1083,7 +1083,7 @@
                     clients = clients.filter(c => c.id !== id);
                     await deleteDoc(doc(db, 'users', currentUser.uid, 'clients', id));
                     populateClientDropdown();
-                    renderClientsList();
+                    window.renderClientsList();
                 } catch (e) {
                     console.error("Error eliminando cliente:", e);
                 }
@@ -1115,7 +1115,7 @@
                             <span class="text-[10px] uppercase font-bold text-slate-400 block">Ganancia Neta</span>
                             <span class="text-base font-mono font-bold text-slate-900">$${inv.netProfit.toLocaleString('es-MX', { minimumFractionDigits: 2 })}</span>
                         </div>
-                        <button onclick="openPreviewModal('${inv.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
+                        <button onclick="window.openPreviewModal('${inv.id}')" class="flex items-center gap-1.5 bg-slate-900 text-amber-400 hover:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold transition-colors">
                             <i data-lucide="eye" class="w-3.5 h-3.5"></i> Ver Nota
                         </button>
                     </div>
