@@ -28,6 +28,8 @@
                 <p class="text-xs text-slate-500">Gestión Agrícola & Comercial Profesional</p>
             </div>
 
+            <div id="auth-alert" class="hidden p-3 rounded-xl text-xs font-semibold text-center"></div>
+
             <!-- Botón Google -->
             <button type="button" onclick="loginWithGoogle()" class="w-full flex items-center justify-center space-x-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 py-3 rounded-xl text-xs font-bold transition-colors shadow-xs">
                 <svg class="w-4 h-4" viewBox="0 0 24 24">
@@ -54,6 +56,9 @@
                 <div>
                     <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Contraseña</label>
                     <input type="password" id="auth-password" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="••••••••">
+                </div>
+                <div id="forgot-password-container" class="text-right">
+                    <button type="button" onclick="handleForgotPassword()" class="text-[11px] text-slate-500 hover:text-slate-900 underline">¿Olvidaste tu contraseña?</button>
                 </div>
                 <button type="submit" id="auth-submit-btn" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 rounded-xl text-xs transition-colors shadow-sm">
                     Iniciar Sesión
@@ -110,9 +115,12 @@
 
                 <!-- Usuario y Logout -->
                 <div class="flex items-center space-x-3">
-                    <div class="hidden sm:block text-right">
-                        <p id="user-display-name" class="text-xs font-bold text-slate-900">Usuario</p>
-                        <p class="text-[10px] text-emerald-600 font-semibold">Sesión Activa</p>
+                    <div class="flex items-center space-x-2">
+                        <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full object-cover border border-slate-300 hidden">
+                        <div class="hidden sm:block text-right">
+                            <p id="user-display-name" class="text-xs font-bold text-slate-900">Usuario</p>
+                            <p class="text-[10px] text-emerald-600 font-semibold">Sesión Activa</p>
+                        </div>
                     </div>
                     <button onclick="logout()" title="Cerrar Sesión" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 border border-slate-200 transition-colors">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
@@ -396,13 +404,9 @@
     <!-- ======================================================= -->
     <!-- SCRIPT DE APLICACIÓN E INTEGRACIÓN DE FIREBASE          -->
     <!-- ======================================================= -->
-    <!-- Firebase SDKs -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
-        
-        // IMPORTACIONES DE FIREBASE AUTH AÑADIDAS
         import { 
             getAuth, 
             signInWithEmailAndPassword, 
@@ -410,43 +414,60 @@
             signInWithPopup, 
             GoogleAuthProvider, 
             signOut, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            collection, 
+            getDocs, 
+            deleteDoc 
+        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC58yVhjPLKBmnSbyTANrR1DPaH8wvgwf0",
             authDomain: "inovice-note.firebaseapp.com",
             projectId: "inovice-note",
             storageBucket: "inovice-note.firebasestorage.app",
             messagingSenderId: "533605852924",
-            appId: "1:533605852924:web:fa7185dbd67ea15c16d979",
-            measurementId: "G-WX82HHYKKB"
+            appId: "1:533605852924:web:9a5ed560bd4a46c816d979",
+            measurementId: "G-ZRSH932H15"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
-        
-        // INICIALIZACIÓN DE AUTH Y GOOGLE PROVIDER
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
 
+        let currentUser = null;
         let isRegisterMode = false;
 
-        // Exponer funciones de autenticación al entorno global
         window.toggleAuthMode = function() {
             isRegisterMode = !isRegisterMode;
             const btn = document.getElementById('auth-submit-btn');
             const toggleBtn = document.getElementById('auth-toggle-mode-btn');
+            const forgotContainer = document.getElementById('forgot-password-container');
             if (isRegisterMode) {
                 btn.textContent = 'Registrar Cuenta';
                 toggleBtn.innerHTML = '¿Ya tienes cuenta? <span class="text-amber-600 underline">Inicia Sesión</span>';
+                forgotContainer.classList.add('hidden');
             } else {
                 btn.textContent = 'Iniciar Sesión';
                 toggleBtn.innerHTML = '¿No tienes cuenta? <span class="text-amber-600 underline">Regístrate aquí</span>';
+                forgotContainer.classList.remove('hidden');
             }
         };
+
+        function showAuthAlert(message, isError = true) {
+            const alertBox = document.getElementById('auth-alert');
+            alertBox.textContent = message;
+            alertBox.className = `p-3 rounded-xl text-xs font-semibold text-center ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            alertBox.classList.remove('hidden');
+        }
 
         window.handleEmailAuth = async function(e) {
             e.preventDefault();
@@ -456,22 +477,35 @@
             try {
                 if (isRegisterMode) {
                     await createUserWithEmailAndPassword(auth, email, password);
-                    alert('¡Cuenta registrada con éxito!');
+                    showAuthAlert('¡Cuenta registrada con éxito!', false);
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
                 }
             } catch (error) {
-                console.warn("Modo simulación activado por restricción de dominio Firebase:", error.message);
-                onUserLoggedIn({ uid: 'demo-user-email', email: email, displayName: email.split('@')[0] });
+                showAuthAlert(error.message);
             }
         };
 
         window.loginWithGoogle = async function() {
             try {
+                googleProvider.setCustomParameters({ prompt: 'select_account' });
                 await signInWithPopup(auth, googleProvider);
             } catch (error) {
-                console.warn("Modo simulación Google Auth activado:", error.message);
-                onUserLoggedIn({ uid: 'demo-google-user', email: 'usuario.google@gmail.com', displayName: 'Propietario Rancho' });
+                showAuthAlert(error.message);
+            }
+        };
+
+        window.handleForgotPassword = async function() {
+            const email = document.getElementById('auth-email').value;
+            if (!email) {
+                showAuthAlert('Por favor introduce tu correo electrónico primero.');
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showAuthAlert('Correo de restablecimiento enviado. Revisa tu bandeja.', false);
+            } catch (error) {
+                showAuthAlert(error.message);
             }
         };
 
@@ -481,21 +515,34 @@
             } catch (e) {
                 console.error(e);
             }
-            onUserLoggedOut();
         };
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
+                currentUser = user;
                 onUserLoggedIn(user);
             } else {
+                currentUser = null;
                 onUserLoggedOut();
             }
         });
 
-        function onUserLoggedIn(user) {
+        async function onUserLoggedIn(user) {
             document.getElementById('auth-screen').classList.add('hidden');
             document.getElementById('app-main-layout').classList.remove('hidden');
-            document.getElementById('user-display-name').textContent = user.displayName || user.email || 'Propietario';
+            
+            const displayName = user.displayName || user.email.split('@')[0];
+            document.getElementById('user-display-name').textContent = displayName;
+            
+            const avatarImg = document.getElementById('user-avatar');
+            if (user.photoURL) {
+                avatarImg.src = user.photoURL;
+                avatarImg.classList.remove('hidden');
+            } else {
+                avatarImg.classList.add('hidden');
+            }
+
+            await loadUserDataFromFirestore();
             initApp();
         }
 
@@ -503,32 +550,10 @@
             document.getElementById('app-main-layout').classList.add('hidden');
             document.getElementById('auth-screen').classList.remove('hidden');
         }
-    </script>
 
-    <!-- LÓGICA GENERAL DE LA APLICACIÓN -->
-    <script>
-        const INITIAL_CLIENTS = [
-            { id: 'cli-1', name: 'Distribuidora Agrícola del Norte', contactPerson: 'Carlos Mendoza', phone: '+52 555 123 4567', email: 'contacto@agricolanorte.com', taxId: 'DAN890412KH3', address: 'Av. Central 450, Bodega 12, Ciudad de México', createdAt: '2025-01-15' },
-            { id: 'cli-2', name: 'Fruterías La Finca S.A.', contactPerson: 'María Elena Ramos', phone: '+52 333 987 6543', email: 'compras@lafinca.mx', taxId: 'FFI950820TL9', address: 'Mercado de Abastos No. 88, Guadalajara, Jal.', createdAt: '2025-02-01' },
-            { id: 'cli-3', name: 'Comercializadora El Valle', contactPerson: 'Roberto Gómez', phone: '+52 818 444 5566', email: 'rgomez@elvalle.com.mx', taxId: 'CEV010315AB1', address: 'Calle del Sol 102, Monterrey, N.L.', createdAt: '2025-02-10' }
-        ];
-
-        const INITIAL_INVOICES = [
-            {
-                id: 'NOT-2025-001', clientId: 'cli-1', clientName: 'Distribuidora Agrícola del Norte', date: '2025-02-14',
-                items: [
-                    { id: '1', description: 'Aguacate Hass Premium', unitType: 'Caja', saleDate: '2025-02-13', quantity: 150, unitPrice: 480, subtotal: 72000 },
-                    { id: '2', description: 'Limón Persa Selección', unitType: 'Kg', saleDate: '2025-02-14', quantity: 850, unitPrice: 28, subtotal: 23800 }
-                ],
-                expenses: [
-                    { id: 'e1', description: 'Flete Refrigerado', amount: 8500 },
-                    { id: 'e2', description: 'Carga y Descarga', amount: 1500 },
-                    { id: 'e3', description: 'Empaque de Cartón', amount: 3200 }
-                ],
-                totalGross: 95800, totalExpenses: 13200, netProfit: 82600, notes: 'Entrega en bodega central.'
-            }
-        ];
-
+        // ======================================================= -->
+        // DATOS Y FIRESTORE PERSISTENCE                           -->
+        // ======================================================= -->
         const DEFAULT_SETTINGS = {
             name: 'Rancho / Empresa Agrícola San José',
             taxId: 'RAI980123XY9',
@@ -539,9 +564,9 @@
             currency: 'MXN'
         };
 
-        let clients = JSON.parse(localStorage.getItem('app_clients_v5')) || INITIAL_CLIENTS;
-        let invoices = JSON.parse(localStorage.getItem('app_invoices_v5')) || INITIAL_INVOICES;
-        let settings = JSON.parse(localStorage.getItem('app_settings_v5')) || DEFAULT_SETTINGS;
+        let clients = [];
+        let invoices = [];
+        let settings = DEFAULT_SETTINGS;
 
         let activeTab = 'create-invoice';
         let currentEditingClientId = null;
@@ -549,6 +574,43 @@
 
         let invoiceItems = [{ id: '1', description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
         let invoiceExpenses = [{ id: '1', description: 'Flete / Transporte', amount: 0 }];
+
+        async function loadUserDataFromFirestore() {
+            if (!currentUser) return;
+            try {
+                const settingsRef = doc(db, 'users', currentUser.uid, 'config', 'settings');
+                const settingsSnap = await getDoc(settingsRef);
+                if (settingsSnap.exists()) {
+                    settings = settingsSnap.data();
+                } else {
+                    settings = DEFAULT_SETTINGS;
+                    await setDoc(settingsRef, settings);
+                }
+
+                const clientsSnap = await getDocs(collection(db, 'users', currentUser.uid, 'clients'));
+                clients = [];
+                clientsSnap.forEach(docSnap => {
+                    clients.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                if (clients.length === 0) {
+                    clients = [
+                        { id: 'cli-1', name: 'Distribuidora Agrícola del Norte', contactPerson: 'Carlos Mendoza', phone: '+52 555 123 4567', email: 'contacto@agricolanorte.com', taxId: 'DAN890412KH3', address: 'Av. Central 450, Bodega 12, Ciudad de México', createdAt: '2025-01-15' },
+                        { id: 'cli-2', name: 'Fruterías La Finca S.A.', contactPerson: 'María Elena Ramos', phone: '+52 333 987 6543', email: 'compras@lafinca.mx', taxId: 'FFI950820TL9', address: 'Mercado de Abastos No. 88, Guadalajara, Jal.', createdAt: '2025-02-01' }
+                    ];
+                    for (const c of clients) {
+                        await setDoc(doc(db, 'users', currentUser.uid, 'clients', c.id), c);
+                    }
+                }
+
+                const invoicesSnap = await getDocs(collection(db, 'users', currentUser.uid, 'invoices'));
+                invoices = [];
+                invoicesSnap.forEach(docSnap => {
+                    invoices.push({ id: docSnap.id, ...docSnap.data() });
+                });
+            } catch (e) {
+                console.error("Error cargando datos de Firestore:", e);
+            }
+        }
 
         function initApp() {
             loadSettingsIntoForm();
@@ -558,12 +620,6 @@
             updateInvoiceSummary();
             populateClientDropdown();
             lucide.createIcons();
-        }
-
-        function saveData() {
-            localStorage.setItem('app_clients_v5', JSON.stringify(clients));
-            localStorage.setItem('app_invoices_v5', JSON.stringify(invoices));
-            localStorage.setItem('app_settings_v5', JSON.stringify(settings));
         }
 
         function applySettingsToHeader() {
@@ -581,7 +637,7 @@
             document.getElementById('set-company-currency').value = settings.currency || 'MXN';
         }
 
-        function handleSettingsSave(e) {
+        async function handleSettingsSave(e) {
             e.preventDefault();
             settings = {
                 name: document.getElementById('set-company-name').value,
@@ -592,16 +648,18 @@
                 subtitle: document.getElementById('set-company-subtitle').value,
                 currency: document.getElementById('set-company-currency').value
             };
-            saveData();
-            applySettingsToHeader();
-
-            const alertBox = document.getElementById('settings-success');
-            alertBox.classList.remove('hidden');
-            setTimeout(() => alertBox.classList.add('hidden'), 3500);
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'config', 'settings'), settings);
+                applySettingsToHeader();
+                const alertBox = document.getElementById('settings-success');
+                alertBox.classList.remove('hidden');
+                setTimeout(() => alertBox.classList.add('hidden'), 3500);
+            } catch (e) {
+                console.error("Error guardando configuración:", e);
+            }
         }
 
-        // Navegación
-        function switchTab(tab) {
+        window.switchTab = function(tab) {
             activeTab = tab;
             selectedClientProfileId = null;
             document.getElementById('section-create-invoice').classList.toggle('hidden', tab !== 'create-invoice');
@@ -625,7 +683,6 @@
             lucide.createIcons();
         }
 
-        // Dropdown de Clientes en Crear Nota
         function populateClientDropdown(selectedId = '') {
             const select = document.getElementById('invoice-client-select');
             select.innerHTML = '<option value="">Selecciona un cliente registrado...</option>';
@@ -638,8 +695,7 @@
             });
         }
 
-        // Gestión de Productos en Nota
-        function renderInvoiceFormItems() {
+        window.renderInvoiceFormItems = function() {
             const container = document.getElementById('invoice-items-container');
             container.innerHTML = '';
             invoiceItems.forEach(item => {
@@ -648,30 +704,30 @@
                 div.innerHTML = `
                     <div class="sm:col-span-4">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Descripción del Producto</label>
-                        <input type="text" placeholder="Ej. Aguacate Hass / Limón" value="${item.description}" oninput="updateItem(${item.id}, 'description', this.value)" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="text" placeholder="Ej. Aguacate Hass / Limón" value="${item.description}" oninput="updateItem('${item.id}', 'description', this.value)" required class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Vendido por</label>
-                        <select onchange="updateItem(${item.id}, 'unitType', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <select onchange="updateItem('${item.id}', 'unitType', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                             <option value="Caja" ${item.unitType === 'Caja' ? 'selected' : ''}>Caja</option>
                             <option value="Kg" ${item.unitType === 'Kg' ? 'selected' : ''}>Kg</option>
                         </select>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Fecha Venta</label>
-                        <input type="date" value="${item.saleDate}" onchange="updateItem(${item.id}, 'saleDate', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="date" value="${item.saleDate}" onchange="updateItem('${item.id}', 'saleDate', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-700 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-1">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Cant.</label>
-                        <input type="number" min="0.1" step="any" value="${item.quantity}" oninput="updateItem(${item.id}, 'quantity', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="number" min="0.1" step="any" value="${item.quantity}" oninput="updateItem('${item.id}', 'quantity', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Precio Unit. ($)</label>
-                        <input type="number" min="0" step="any" value="${item.unitPrice}" oninput="updateItem(${item.id}, 'unitPrice', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
+                        <input type="number" min="0" step="any" value="${item.unitPrice}" oninput="updateItem('${item.id}', 'unitPrice', this.value)" class="w-full bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-900">
                     </div>
                     <div class="sm:col-span-1 flex items-center justify-between sm:justify-end gap-1 pt-1 sm:pt-0">
                         <span class="text-xs font-bold font-mono text-slate-900 sm:hidden">$${(item.subtotal || 0).toLocaleString('es-MX')}</span>
-                        ${invoiceItems.length > 1 ? `<button type="button" onclick="removeInvoiceItem(${item.id})" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+                        ${invoiceItems.length > 1 ? `<button type="button" onclick="removeInvoiceItem('${item.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
                     </div>
                 `;
                 container.appendChild(div);
@@ -679,19 +735,19 @@
             lucide.createIcons();
         }
 
-        function addInvoiceItem() {
+        window.addInvoiceItem = function() {
             invoiceItems.push({ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 });
             renderInvoiceFormItems();
         }
 
-        function removeInvoiceItem(id) {
+        window.removeInvoiceItem = function(id) {
             if (invoiceItems.length === 1) return;
             invoiceItems = invoiceItems.filter(i => i.id !== id);
             renderInvoiceFormItems();
             updateInvoiceSummary();
         }
 
-        function updateItem(id, field, value) {
+        window.updateItem = function(id, field, value) {
             invoiceItems = invoiceItems.map(item => {
                 if (item.id == id) {
                     item[field] = value;
@@ -704,8 +760,7 @@
             updateInvoiceSummary();
         }
 
-        // Gestión de Gastos en Nota
-        function renderInvoiceFormExpenses() {
+        window.renderInvoiceFormExpenses = function() {
             const container = document.getElementById('invoice-expenses-container');
             container.innerHTML = '';
             invoiceExpenses.forEach(exp => {
@@ -714,14 +769,14 @@
                 div.innerHTML = `
                     <div class="sm:col-span-7">
                         <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Concepto de Gasto</label>
-                        <input type="text" placeholder="Ej. Flete, Carga y descarga, Cartón" value="${exp.description}" oninput="updateExpense(${exp.id}, 'description', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400">
+                        <input type="text" placeholder="Ej. Flete, Carga y descarga, Cartón" value="${exp.description}" oninput="updateExpense('${exp.id}', 'description', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400">
                     </div>
                     <div class="sm:col-span-4">
                         <label class="block text-[10px] uppercase font-bold text-red-800/60 mb-1">Monto del Gasto ($)</label>
-                        <input type="number" min="0" step="any" value="${exp.amount}" oninput="updateExpense(${exp.id}, 'amount', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-mono text-red-700 font-semibold focus:outline-none focus:ring-1 focus:ring-red-400">
+                        <input type="number" min="0" step="any" value="${exp.amount}" oninput="updateExpense('${exp.id}', 'amount', this.value)" class="w-full bg-white border border-red-200 rounded-lg px-3 py-1.5 text-xs font-mono text-red-700 font-semibold focus:outline-none focus:ring-1 focus:ring-red-400">
                     </div>
                     <div class="sm:col-span-1 flex justify-end">
-                        <button type="button" onclick="removeInvoiceExpense(${exp.id})" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <button type="button" onclick="removeInvoiceExpense('${exp.id}')" class="text-slate-400 hover:text-red-600 p-1.5 rounded-md transition-colors"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -729,18 +784,18 @@
             lucide.createIcons();
         }
 
-        function addInvoiceExpense() {
+        window.addInvoiceExpense = function() {
             invoiceExpenses.push({ id: Date.now().toString(), description: '', amount: 0 });
             renderInvoiceFormExpenses();
         }
 
-        function removeInvoiceExpense(id) {
+        window.removeInvoiceExpense = function(id) {
             invoiceExpenses = invoiceExpenses.filter(e => e.id !== id);
             renderInvoiceFormExpenses();
             updateInvoiceSummary();
         }
 
-        function updateExpense(id, field, value) {
+        window.updateExpense = function(id, field, value) {
             invoiceExpenses = invoiceExpenses.map(exp => {
                 if (exp.id == id) exp[field] = value;
                 return exp;
@@ -758,7 +813,7 @@
             document.getElementById('summary-net').textContent = '$' + net.toLocaleString('es-MX', { minimumFractionDigits: 2 });
         }
 
-        function handleInvoiceSubmit(e) {
+        window.handleInvoiceSubmit = async function(e) {
             e.preventDefault();
             const clientId = document.getElementById('invoice-client-select').value;
             if (!clientId) {
@@ -770,8 +825,9 @@
             const expenses = invoiceExpenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
             const net = gross - expenses;
 
+            const invoiceId = `NOT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
             const newInvoice = {
-                id: `NOT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                id: invoiceId,
                 clientId,
                 clientName: clientObj ? clientObj.name : 'General',
                 date: new Date().toISOString().split('T')[0],
@@ -783,26 +839,29 @@
                 notes: document.getElementById('invoice-notes').value
             };
 
-            invoices.unshift(newInvoice);
-            saveData();
+            try {
+                await setDoc(doc(db, 'users', currentUser.uid, 'invoices', invoiceId), newInvoice);
+                invoices.unshift(newInvoice);
 
-            // Reset form
-            document.getElementById('invoice-notes').value = '';
-            invoiceItems = [{ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
-            invoiceExpenses = [{ id: Date.now().toString(), description: 'Flete / Transporte', amount: 0 }];
-            renderInvoiceFormItems();
-            renderInvoiceFormExpenses();
-            updateInvoiceSummary();
+                document.getElementById('invoice-notes').value = '';
+                invoiceItems = [{ id: Date.now().toString(), description: '', unitType: 'Caja', saleDate: new Date().toISOString().split('T')[0], quantity: 1, unitPrice: 0, subtotal: 0 }];
+                invoiceExpenses = [{ id: Date.now().toString(), description: 'Flete / Transporte', amount: 0 }];
+                renderInvoiceFormItems();
+                renderInvoiceFormExpenses();
+                updateInvoiceSummary();
 
-            const alertBox = document.getElementById('success-alert');
-            alertBox.classList.remove('hidden');
-            setTimeout(() => alertBox.classList.add('hidden'), 3500);
+                const alertBox = document.getElementById('success-alert');
+                alertBox.classList.remove('hidden');
+                setTimeout(() => alertBox.classList.add('hidden'), 3500);
 
-            openPreviewModal(newInvoice.id);
+                openPreviewModal(newInvoice.id);
+            } catch (e) {
+                console.error("Error al guardar la factura:", e);
+                alert("Error al guardar la factura en Firestore.");
+            }
         }
 
-        // Gestión de Clientes
-        function renderClientsList() {
+        window.renderClientsList = function() {
             const search = document.getElementById('client-search').value.toLowerCase();
             const grid = document.getElementById('clients-grid');
             grid.innerHTML = '';
@@ -850,8 +909,7 @@
             lucide.createIcons();
         }
 
-        // Expediente de Cliente
-        function openClientProfile(clientId) {
+        window.openClientProfile = function(clientId) {
             selectedClientProfileId = clientId;
             const client = clients.find(c => c.id === clientId);
             if (!client) return;
@@ -941,20 +999,19 @@
             lucide.createIcons();
         }
 
-        function closeClientProfile() {
+        window.closeClientProfile = function() {
             selectedClientProfileId = null;
             document.getElementById('client-detail-view').classList.add('hidden');
             document.getElementById('clients-main-container').classList.remove('hidden');
             renderClientsList();
         }
 
-        function createInvoiceForClient(clientId) {
+        window.createInvoiceForClient = function(clientId) {
             switchTab('create-invoice');
             populateClientDropdown(clientId);
         }
 
-        // Modal de Cliente
-        function openClientModal(id = null) {
+        window.openClientModal = function(id = null) {
             currentEditingClientId = id;
             const modal = document.getElementById('client-modal');
             const title = document.getElementById('client-modal-title');
@@ -975,12 +1032,12 @@
             modal.classList.remove('hidden');
         }
 
-        function closeClientModal() {
+        window.closeClientModal = function() {
             document.getElementById('client-modal').classList.add('hidden');
             currentEditingClientId = null;
         }
 
-        function handleClientFormSubmit(e) {
+        window.handleClientFormSubmit = async function(e) {
             e.preventDefault();
             const data = {
                 name: document.getElementById('modal-client-name').value,
@@ -991,38 +1048,48 @@
                 address: document.getElementById('modal-client-address').value,
             };
 
-            if (currentEditingClientId) {
-                clients = clients.map(c => c.id === currentEditingClientId ? { ...c, ...data } : c);
-            } else {
-                const newClient = { ...data, id: 'cli-' + Date.now(), createdAt: new Date().toISOString().split('T')[0] };
-                clients.unshift(newClient);
-            }
-
-            saveData();
-            closeClientModal();
-            populateClientDropdown();
-
-            if (activeTab === 'clients') {
-                if (selectedClientProfileId) {
-                    openClientProfile(selectedClientProfileId);
+            try {
+                if (currentEditingClientId) {
+                    clients = clients.map(c => c.id === currentEditingClientId ? { ...c, ...data } : c);
+                    await setDoc(doc(db, 'users', currentUser.uid, 'clients', currentEditingClientId), data, { merge: true });
                 } else {
+                    const newId = 'cli-' + Date.now();
+                    const newClient = { ...data, id: newId, createdAt: new Date().toISOString().split('T')[0] };
+                    clients.unshift(newClient);
+                    await setDoc(doc(db, 'users', currentUser.uid, 'clients', newId), newClient);
+                }
+
+                closeClientModal();
+                populateClientDropdown();
+
+                if (activeTab === 'clients') {
+                    if (selectedClientProfileId) {
+                        openClientProfile(selectedClientProfileId);
+                    } else {
+                        renderClientsList();
+                    }
+                }
+            } catch (e) {
+                console.error("Error guardando cliente:", e);
+                alert("Error al guardar cliente en Firestore.");
+            }
+        }
+
+        window.deleteClient = async function(id) {
+            const clientInvs = invoices.filter(inv => inv.clientId === id);
+            const msg = clientInvs.length > 0 ? `Este cliente tiene ${clientInvs.length} nota(s) registradas. ¿Deseas eliminarlo?` : '¿Confirmas eliminar este cliente?';
+            if (confirm(msg)) {
+                try {
+                    clients = clients.filter(c => c.id !== id);
+                    await deleteDoc(doc(db, 'users', currentUser.uid, 'clients', id));
+                    populateClientDropdown();
                     renderClientsList();
+                } catch (e) {
+                    console.error("Error eliminando cliente:", e);
                 }
             }
         }
 
-        function deleteClient(id) {
-            const clientInvs = invoices.filter(inv => inv.clientId === id);
-            const msg = clientInvs.length > 0 ? `Este cliente tiene ${clientInvs.length} nota(s) registradas. ¿Deseas eliminarlo?` : '¿Confirmas eliminar este cliente?';
-            if (confirm(msg)) {
-                clients = clients.filter(c => c.id !== id);
-                saveData();
-                populateClientDropdown();
-                renderClientsList();
-            }
-        }
-
-        // Historial
         function renderHistoryList() {
             const container = document.getElementById('history-list');
             container.innerHTML = '';
@@ -1058,8 +1125,7 @@
             lucide.createIcons();
         }
 
-        // Previsualización de Nota Personalizada con datos del Rancho/Empresa
-        function openPreviewModal(invoiceId) {
+        window.openPreviewModal = function(invoiceId) {
             const inv = invoices.find(i => i.id === invoiceId);
             if (!inv) return;
             const client = clients.find(c => c.id === inv.clientId) || { name: inv.clientName, taxId: 'S/N', address: 'S/N', phone: 'S/N', email: 'S/N' };
@@ -1143,7 +1209,7 @@
             lucide.createIcons();
         }
 
-        function closePreviewModal() {
+        window.closePreviewModal = function() {
             document.getElementById('invoice-preview-modal').classList.add('hidden');
         }
     </script>
