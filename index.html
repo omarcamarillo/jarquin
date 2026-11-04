@@ -398,27 +398,38 @@
     <!-- ======================================================= -->
     <!-- Firebase SDKs -->
     <script type="module">
- // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
-  import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-analytics.js";
+        
+        // IMPORTACIONES DE FIREBASE AUTH AÑADIDAS
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signInWithPopup, 
+            GoogleAuthProvider, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
 
-  // Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  const firebaseConfig = {
-    apiKey: "AIzaSyC58yVhjPLKBmnSbyTANrR1DPaH8wvgwf0",
-    authDomain: "inovice-note.firebaseapp.com",
-    projectId: "inovice-note",
-    storageBucket: "inovice-note.firebasestorage.app",
-    messagingSenderId: "533605852924",
-    appId: "1:533605852924:web:9a5ed560bd4a46c816d979",
-    measurementId: "G-ZRSH932H15"
-  };
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC58yVhjPLKBmnSbyTANrR1DPaH8wvgwf0",
+            authDomain: "inovice-note.firebaseapp.com",
+            projectId: "inovice-note",
+            storageBucket: "inovice-note.firebasestorage.app",
+            messagingSenderId: "533605852924",
+            appId: "1:533605852924:web:fa7185dbd67ea15c16d979",
+            measurementId: "G-WX82HHYKKB"
+        };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        
+        // INICIALIZACIÓN DE AUTH Y GOOGLE PROVIDER
+        const auth = getAuth(app);
         const googleProvider = new GoogleAuthProvider();
 
         let isRegisterMode = false;
@@ -450,9 +461,7 @@
                     await signInWithEmailAndPassword(auth, email, password);
                 }
             } catch (error) {
-                // Modo simulado offline o fallback si Firebase requiere credenciales reales de dominio autorizado
                 console.warn("Modo simulación activado por restricción de dominio Firebase:", error.message);
-                // Simulamos autenticación exitosa localmente para pruebas instantáneas
                 onUserLoggedIn({ uid: 'demo-user-email', email: email, displayName: email.split('@')[0] });
             }
         };
