@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b10">
+  <meta name="description" content="Sistema comercial para facturación, notas y gestión de clientes.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Facturación & Notas">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+  <link rel="stylesheet" href="./assets/css/global.css">
+  <link rel="stylesheet" href="./assets/css/dashboard.css">
+  <title>Dashboard | Facturación & Notas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+<body class="dashboard-page min-h-screen bg-slate-100 text-slate-900 antialiased">
+<div id="route-loader"><span><i class="route-loader-dot"></i>Comprobando sesión…</span></div>
+<div id="app-main-layout" class="hidden min-h-screen flex flex-col">
+        <!-- HEADER con diseño gris clarito y efecto reflejo -->
+        <header class="bg-slate-200/80 backdrop-blur-md border-b border-slate-300/70 sticky top-0 z-30 glass-reflection">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white flex items-center justify-center font-black text-sm border border-orange-500/40 shadow-sm">
+                        N
+                    </div>
+                    <div>
+                        <span id="header-brand-title" class="font-bold text-slate-900 tracking-tight text-sm flex items-center gap-1.5">
+                            Facturación & Notas
+                            <span class="h-2 w-2 rounded-full bg-orange-500"></span>
+                        </span>
+                        <p id="header-brand-subtitle" class="text-[10px] text-slate-600 font-medium uppercase tracking-wider">Gestión Agrícola & Comercial</p>
+                    </div>
+                </div>
+
+                <!-- Navegación Escritorio -->
+                <nav class="hidden md:flex items-center space-x-1 bg-slate-300/60 p-1 rounded-xl border border-slate-300">
+                    <button onclick="window.switchTab('home')" id="nav-home" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-orange-600 text-white shadow-xs">
+                        <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i><span>Inicio</span>
+                    </button>
+                    <button onclick="window.switchTab('clients')" id="nav-clients" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-700 hover:text-slate-900">
+                        <i data-lucide="users" class="w-3.5 h-3.5"></i><span>Clientes</span>
+                    </button>
+                    <button onclick="window.switchTab('history')" id="nav-history" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-700 hover:text-slate-900">
+                        <i data-lucide="receipt" class="w-3.5 h-3.5"></i><span>Historial</span>
+                    </button>
+                    <button onclick="window.switchTab('news')" id="nav-news" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all text-slate-700 hover:text-slate-900">
+                        <i data-lucide="newspaper" class="w-3.5 h-3.5"></i><span>Noticias</span>
+                    </button>
+                </nav>
+
+                <!-- Usuario, Configuración y Logout / Botón Hamburguesa Móvil -->
+                <div class="flex items-center space-x-2.5">
+                    <div class="hidden sm:flex items-center space-x-2">
+                        <img id="user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-full object-cover border border-slate-300 hidden">
+                        <div class="text-right">
+                            <p id="user-display-name" class="text-xs font-bold text-slate-900">Usuario</p>
+                            <p class="text-[10px] text-orange-600 font-semibold">Sesión Activa</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1 border-l border-slate-300 pl-2.5">
+                        <button onclick="window.switchTab('settings')" id="nav-settings" title="Configuración de Empresa" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-300 transition-colors">
+                            <i data-lucide="settings" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="window.logout()" title="Cerrar Sesión" class="p-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border border-slate-300 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                        </button>
+                        <!-- Botón Hamburguesa Móvil -->
+                        <button onclick="window.toggleMobileMenu()" id="mobile-menu-btn" title="Menú de Navegación" class="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition-colors ml-1">
+                            <i data-lucide="menu" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menú Desplegable Móvil -->
+            <div id="mobile-dropdown-menu" class="hidden md:hidden bg-slate-100 border-b border-slate-300 px-4 pt-2 pb-4 space-y-2 shadow-lg">
+                <button onclick="window.switchTab('home'); window.toggleMobileMenu();" id="mob-nav-home" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-orange-600 text-white"><i data-lucide="layout-dashboard" class="w-4 h-4"></i><span>Inicio</span></button>
+                <button onclick="window.switchTab('clients'); window.toggleMobileMenu();" id="mob-nav-clients" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200"><i data-lucide="users" class="w-4 h-4"></i><span>Clientes</span></button>
+                <button onclick="window.switchTab('history'); window.toggleMobileMenu();" id="mob-nav-history" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200"><i data-lucide="receipt" class="w-4 h-4"></i><span>Historial</span></button>
+                <button onclick="window.switchTab('news'); window.toggleMobileMenu();" id="mob-nav-news" class="w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-200"><i data-lucide="newspaper" class="w-4 h-4"></i><span>Noticias del sistema</span></button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+            <!-- INICIO / RESUMEN GLOBAL -->
+            <section id="section-home" class="space-y-6">
+                <div class="max-w-6xl mx-auto space-y-6">
+                    <div class="bg-slate-200/60 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-slate-300/80 shadow-xs glass-reflection">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-100 border border-orange-200 text-orange-800 text-[10px] font-bold uppercase tracking-wider"><i data-lucide="layout-dashboard" class="w-3 h-3"></i> Panel general</span>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 mt-3 tracking-tight">Resumen de tu negocio</h1>
+                        <p class="text-sm text-slate-600 mt-1">Consulta el rendimiento global de tus clientes, ventas, inversión y ganancias.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                        <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Clientes registrados</span><span class="p-2 rounded-xl bg-orange-100 text-orange-700"><i data-lucide="users" class="w-5 h-5"></i></span></div><p id="home-total-clients" class="text-3xl font-bold text-slate-900 mt-3">0</p><p class="text-xs text-slate-500 mt-1">Total de clientes</p></article>
+                        <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total vendido</span><span class="p-2 rounded-xl bg-blue-100 text-blue-700"><i data-lucide="trending-up" class="w-5 h-5"></i></span></div><p id="home-total-sales" class="text-2xl font-bold text-slate-900 mt-3">$0.00</p><p class="text-xs text-slate-500 mt-1">Ventas brutas acumuladas</p></article>
+                        <article class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Total invertido</span><span class="p-2 rounded-xl bg-red-100 text-red-700"><i data-lucide="wallet" class="w-5 h-5"></i></span></div><p id="home-total-invested" class="text-2xl font-bold text-red-700 mt-3">$0.00</p><p class="text-xs text-slate-500 mt-1">Gastos operativos registrados</p></article>
+                        <article class="bg-slate-900 p-5 rounded-2xl border border-slate-800 shadow-md"><div class="flex items-center justify-between"><span class="text-[11px] font-bold uppercase tracking-wider text-orange-300">Ganancia total</span><span class="p-2 rounded-xl bg-white/10 text-orange-300"><i data-lucide="badge-dollar-sign" class="w-5 h-5"></i></span></div><p id="home-total-profit" class="text-2xl font-bold text-white mt-3">$0.00</p><p class="text-xs text-slate-300 mt-1">Ventas menos gastos registrados</p></article>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between gap-3 mb-4"><div><h2 class="font-bold text-slate-900">Actividad reciente</h2><p class="text-xs text-slate-500">Últimas notas de venta registradas</p></div><button onclick="window.switchTab('history')" class="text-xs font-bold text-orange-700 hover:text-orange-800">Ver historial →</button></div>
+                            <div id="home-recent-invoices" class="space-y-2"><p class="text-xs text-slate-500 py-5 text-center">Todavía no hay notas de venta.</p></div>
+                        </div>
+                        <div class="bg-orange-50 rounded-2xl border border-orange-200 p-5 shadow-sm flex flex-col justify-between"><div><span class="text-[10px] font-bold uppercase tracking-wider text-orange-800">Acceso rápido</span><h2 class="text-lg font-bold text-slate-900 mt-2">Administra tus clientes</h2><p class="text-xs text-slate-600 mt-1">Entra al expediente de cada cliente para consultar sus estadísticas y crear una nota de venta.</p></div><button onclick="window.switchTab('clients')" class="mt-5 w-full bg-orange-600 hover:bg-orange-700 text-white rounded-xl px-4 py-3 text-xs font-bold flex items-center justify-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> Ir a clientes</button></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 1: CREAR / EDITAR NOTA (se abre desde el expediente del cliente) -->
+            <section id="section-create-invoice" class="hidden space-y-6">
+                <div class="max-w-4xl mx-auto space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-200/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs glass-reflection">
+                        <div>
+                            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-orange-100 border border-orange-200 text-orange-800 text-[11px] font-bold mb-1.5">
+                                <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span> <span id="form-badge-text">Nueva Venta</span>
+                            </div>
+                            <h1 id="form-heading-title" class="text-xl font-bold text-slate-900 tracking-tight">Generar Nota de Venta</h1>
+                            <p class="text-xs text-slate-600">Registro de productos vendidos (Caja/Kg) y desglose de costos operativos.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="cancel-edit-btn" onclick="window.resetInvoiceForm()" class="hidden bg-slate-300/80 hover:bg-slate-300 text-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold border border-slate-400/50">
+                                Cancelar Edición
+                            </button>
+                            <div id="success-alert" class="hidden flex items-center gap-2 bg-slate-900 text-orange-400 border border-slate-800 px-4 py-2 rounded-xl text-xs font-semibold shadow-xs">
+                                <i data-lucide="check-circle-2" class="w-4 h-4 text-orange-400"></i> <span id="success-alert-text">Nota guardada correctamente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="invoice-form" onsubmit="window.handleInvoiceSubmit(event)" class="space-y-6">
+                        <input type="hidden" id="editing-invoice-id" value="">
+
+                        <!-- 1. Cliente -->
+                        <div class="bg-slate-200/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs space-y-3 glass-reflection">
+                            <div class="flex items-center gap-2">
+                                <span class="h-5 w-5 rounded-full bg-orange-100 text-orange-800 text-[10px] font-bold flex items-center justify-center">1</span>
+                                <label class="text-xs font-bold text-slate-800 uppercase tracking-wider">Cliente</label>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <select id="invoice-client-select" required class="flex-1 bg-white/90 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                    <option value="">Selecciona un cliente registrado...</option>
+                                </select>
+                                <button type="button" onclick="window.openClientModal()" class="flex items-center justify-center space-x-2 bg-slate-300/70 hover:bg-slate-300 text-slate-800 border border-slate-400/50 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors">
+                                    <i data-lucide="user-plus" class="w-4 h-4 text-slate-700"></i>
+                                    <span>Nuevo Cliente</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Productos -->
+                        <div class="bg-slate-200/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs space-y-4 glass-reflection">
+                            <div class="flex justify-between items-center border-b border-slate-300/60 pb-3">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <span class="h-5 w-5 rounded-full bg-amber-200/80 text-amber-900 text-[10px] font-bold flex items-center justify-center">2</span>
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Productos Vendidos</span>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="package" class="w-4 h-4 text-orange-600"></i> Detalle de Cajas o Kilogramos
+                                    </h3>
+                                </div>
+                                <button type="button" onclick="window.addInvoiceItem()" class="flex items-center gap-1.5 text-slate-800 bg-slate-300/70 hover:bg-slate-300 border border-slate-400/50 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Producto
+                                </button>
+                            </div>
+                            <div id="invoice-items-container" class="space-y-3"></div>
+                        </div>
+
+                        <!-- 3. Gastos -->
+                        <div class="bg-slate-200/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs space-y-4 glass-reflection">
+                            <div class="flex justify-between items-center border-b border-slate-300/60 pb-3">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-0.5">
+                                        <span class="h-5 w-5 rounded-full bg-red-200/80 text-red-900 text-[10px] font-bold flex items-center justify-center">3</span>
+                                        <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Gastos Operativos</span>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                        <i data-lucide="trending-down" class="w-4 h-4 text-red-600"></i> Desglose de Gastos (Flete, Carga, Empaque)
+                                    </h3>
+                                </div>
+                                <button type="button" onclick="window.addInvoiceExpense()" class="flex items-center gap-1.5 text-red-700 bg-red-100/80 hover:bg-red-200 border border-red-300 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Añadir Gasto
+                                </button>
+                            </div>
+                            <div id="invoice-expenses-container" class="space-y-3"></div>
+                        </div>
+
+                        <!-- Resumen Financiero -->
+                        <div class="bg-slate-200/70 backdrop-blur-sm border border-slate-300 p-6 rounded-2xl shadow-sm space-y-6 glass-reflection">
+                            <div class="flex items-center justify-between border-b border-slate-300/60 pb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                    <i data-lucide="dollar-sign" class="w-4 h-4 text-orange-600"></i> Resumen de Ganancias y Gastos
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div class="bg-white/90 border border-slate-300 p-4 rounded-xl shadow-xs">
+                                    <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Venta Bruta Total</p>
+                                    <p id="summary-gross" class="text-xl font-bold mt-1 font-mono text-slate-900 tracking-tight">$0.00</p>
+                                </div>
+                                <div class="bg-red-50/90 border border-red-200 p-4 rounded-xl shadow-xs">
+                                    <p class="text-[11px] font-semibold text-red-700 uppercase tracking-wider">Gastos Desglosados</p>
+                                    <p id="summary-expenses" class="text-xl font-bold mt-1 font-mono text-red-700 tracking-tight">-$0.00</p>
+                                </div>
+                                <div class="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 shadow-md">
+                                    <p class="text-[11px] font-semibold text-orange-400 uppercase tracking-wider">Ganancia Neta Final</p>
+                                    <p id="summary-net" class="text-2xl font-bold mt-1 font-mono text-white tracking-tight">$0.00</p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <textarea id="invoice-notes" rows="2" placeholder="Observaciones adicionales para la nota..." class="w-full bg-white/90 border border-slate-300 rounded-xl p-3 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" id="submit-invoice-btn" class="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold px-7 py-3 rounded-xl transition-colors flex items-center justify-center space-x-2 text-xs shadow-md shadow-orange-600/20 border border-orange-500/50">
+                                    <i data-lucide="save" class="w-4 h-4"></i>
+                                    <span id="submit-invoice-btn-text">Guardar y Emitir Nota</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: CLIENTES -->
+            <section id="section-clients" class="hidden space-y-6">
+                <div class="max-w-5xl mx-auto space-y-6" id="clients-main-container">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-slate-200/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs glass-reflection">
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider border border-orange-200">Directorio</span>
+                            <h1 class="text-xl font-bold text-slate-900 mt-1">Gestión de Clientes</h1>
+                            <p class="text-xs text-slate-600">Administra la información de tus compradores y accede a sus expedientes.</p>
+                        </div>
+                        <button onclick="window.openClientModal()" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-colors shadow-xs shadow-orange-600/20">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i> Nuevo Cliente
+                        </button>
+                    </div>
+
+                    <!-- Buscador -->
+                    <div class="bg-slate-200/50 backdrop-blur-sm p-4 rounded-xl border border-slate-300/80 shadow-xs flex items-center gap-3 glass-reflection">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-500 shrink-0"></i>
+                        <input type="text" id="client-search" oninput="window.renderClientsList()" placeholder="Buscar por nombre, RFC o contacto..." class="w-full bg-transparent text-xs text-slate-800 focus:outline-none">
+                    </div>
+
+                    <!-- Lista de Clientes Grid -->
+                    <div id="clients-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <!-- VISTA DETALLE / EXPEDIENTE DE CLIENTE (Oculto por defecto) -->
+                <div id="client-detail-view" class="hidden max-w-5xl mx-auto space-y-6"></div>
+            </section>
+
+            <!-- SECCIÓN 3: HISTORIAL -->
+            <section id="section-history" class="hidden space-y-6">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="bg-slate-200/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-reflection">
+                        <div>
+                            <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider border border-orange-200">Registros</span>
+                            <h1 class="text-xl font-bold text-slate-900 mt-1">Historial de Notas Emitidas</h1>
+                            <p class="text-xs text-slate-600">Consulta todas las notas de venta generadas, edítalas o elimínalas.</p>
+                        </div>
+                    </div>
+
+                    <div id="history-list" class="space-y-4"></div>
+                </div>
+            </section>
+
+            <!-- NOTICIAS DEL SISTEMA: espacio reservado para futuras actualizaciones -->
+            <section id="section-news" class="hidden space-y-6">
+                <div class="max-w-5xl mx-auto space-y-6">
+                    <div class="bg-slate-200/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs glass-reflection">
+                        <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider border border-orange-200">Novedades</span>
+                        <h1 class="text-xl font-bold text-slate-900 mt-2">Noticias del sistema</h1>
+                        <p class="text-xs text-slate-600 mt-1">Aquí podrás conocer las nuevas funciones, mejoras y avisos de la plataforma.</p>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-dashed border-orange-300 p-10 sm:p-14 text-center shadow-sm">
+                        <div class="mx-auto w-16 h-16 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center"><i data-lucide="megaphone" class="w-8 h-8"></i></div>
+                        <span class="inline-flex mt-5 px-3 py-1 rounded-full bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-widest">Próximamente</span>
+                        <h2 class="text-xl font-bold text-slate-900 mt-3">Estamos preparando este espacio</h2>
+                        <p class="text-sm text-slate-600 max-w-lg mx-auto mt-2">Muy pronto encontrarás aquí anuncios sobre nuevas herramientas, funciones y actualizaciones del sistema.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: CONFIGURACIÓN DEL PERFIL DE EMPRESA -->
+            <section id="section-settings" class="hidden space-y-6">
+                <div class="max-w-3xl mx-auto space-y-6">
+                    <div class="bg-slate-200/60 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs glass-reflection">
+                        <span class="px-2.5 py-0.5 rounded-md bg-orange-100 text-orange-800 text-[10px] font-bold uppercase tracking-wider border border-orange-200">Personalización</span>
+                        <h1 class="text-xl font-bold text-slate-900 mt-1">Configuración del Perfil / Empresa</h1>
+                        <p class="text-xs text-slate-600">Estos datos aparecerán automáticamente en el encabezado de todas tus notas de venta impresas.</p>
+                    </div>
+
+                    <form onsubmit="window.handleSettingsSave(event)" class="bg-slate-200/50 backdrop-blur-sm p-6 rounded-2xl border border-slate-300/80 shadow-xs space-y-4 glass-reflection">
+                        <div id="settings-success" class="hidden bg-orange-50 text-orange-800 border border-orange-200 p-3 rounded-xl text-xs font-semibold">
+                            Configuración guardada exitosamente.
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nombre del Rancho / Empresa *</label>
+                                <input type="text" id="set-company-name" required class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Ej. Comercializadora Agrícola">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">RFC / Identificación Fiscal</label>
+                                <input type="text" id="set-company-tax" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Ej. XAXX010101000">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Teléfono de Contacto</label>
+                                <input type="text" id="set-company-phone" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Ej. 000 000 0000">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
+                                <input type="email" id="set-company-email" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Ej. contacto@empresa.com">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Dirección del Rancho / Bodega</label>
+                            <textarea id="set-company-address" rows="2" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Dirección fiscal o ubicación de bodega..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Slogan o Subtítulo del Negocio</label>
+                                <input type="text" id="set-company-subtitle" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="Ej. Productos Agrícolas de Calidad">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Moneda Predeterminada</label>
+                                <select id="set-company-currency" class="w-full bg-white/90 border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                                    <option value="MXN">$ MXN (Peso Mexicano)</option>
+                                    <option value="USD">$ USD (Dólar Estadounidense)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-2">
+                            <button type="submit" class="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-xl text-xs transition-colors shadow-sm">
+                                Guardar Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODALES                                                 -->
+    <!-- ======================================================= -->
+
+    <!-- MODAL CLIENTE (CREAR / EDITAR) -->
+    <div id="client-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div id="client-modal-box" class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-300 transform scale-95 opacity-0 transition-all glass-reflection">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 id="client-modal-title" class="text-sm font-bold text-slate-900">Registrar Nuevo Cliente</h3>
+                <button onclick="window.closeClientModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="client-form" onsubmit="window.handleClientFormSubmit(event)" class="space-y-3">
+                <input type="hidden" id="client-edit-id">
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Nombre o Empresa / Razón Social *</label>
+                    <input type="text" id="modal-client-name" required class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Persona de Contacto</label>
+                    <input type="text" id="modal-client-contact" class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Teléfono</label>
+                        <input type="text" id="modal-client-phone" class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Correo Electrónico</label>
+                        <input type="email" id="modal-client-email" class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">RFC / Tax ID</label>
+                    <input type="text" id="modal-client-tax" class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-[10px] uppercase font-bold text-slate-500 mb-1">Dirección Fiscal / Bodega</label>
+                    <textarea id="modal-client-address" rows="2" class="w-full bg-slate-100/70 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-orange-500"></textarea>
+                </div>
+                <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2">
+                    <button type="button" onclick="window.closeClientModal()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-700 hover:bg-slate-300">Cancelar</button>
+                    <button type="submit" class="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-bold bg-orange-600 text-white hover:bg-orange-700">Guardar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PREVIEW NOTA -->
+    <div id="invoice-preview-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+        <div id="preview-modal-box" class="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-slate-300 max-h-[90vh] overflow-y-auto transform scale-95 opacity-0 transition-all glass-reflection">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                <div class="flex items-center gap-2">
+                    <div class="h-6 w-6 rounded-md bg-orange-600 text-white flex items-center justify-center font-bold text-xs">N</div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-700">Comprobante de Venta</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="window.print()" class="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 px-3.5 py-2 rounded-lg text-xs font-bold border border-slate-300"><i data-lucide="printer" class="w-3.5 h-3.5"></i> Imprimir</button>
+                    <button onclick="window.closePreviewModal()" class="text-slate-400 hover:text-slate-600 p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+                </div>
+            </div>
+            <div id="preview-content" class="space-y-6 text-xs text-slate-800 overflow-x-auto"></div>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- SCRIPT DE APLICACIÓN E INTEGRACIÓN DE FIREBASE Y PWA    -->
+    <!-- ======================================================= -->
+    <!-- La lógica del panel se carga una sola vez desde assets/js/dashboard.js. -->
+
+<script>
+(() => {
+    const title = document.getElementById('welcome-typewriter-text');
+    const heading = document.getElementById('welcome-typewriter');
+    if (!title || !heading) return;
+    const message = 'Bienvenido a tu plataforma comercial';
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        title.textContent = message;
+        return;
+    }
+    let position = 0;
+    const typeNext = () => {
+        if (position < message.length) {
+            title.textContent += message.charAt(position);
+            position += 1;
+            window.setTimeout(typeNext, 65);
+        }
+    };
+    window.setTimeout(typeNext, 450);
+})();
+</script>
+
+<script>
+(() => {
+    const target = document.getElementById('board-typewriter-text');
+    if (!target) return;
+    const message = 'Bienvenido a tu plataforma comercial';
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        target.textContent = message;
+        return;
+    }
+    let index = 0;
+    const type = () => {
+        if (index < message.length) {
+            target.textContent += message.charAt(index++);
+            window.setTimeout(type, 65);
+        }
+    };
+    window.setTimeout(type, 350);
+})();
+</script>
+<script type="module" src="./assets/js/dashboard.js"></script>
+<script src="./assets/js/pwa.js"></script>
+<script src="./assets/js/animations.js"></script>
+<script>window.addEventListener('load',()=>{ if(window.lucide) lucide.createIcons(); });</script>
+</body>
+</html>

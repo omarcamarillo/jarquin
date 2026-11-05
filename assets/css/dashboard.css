@@ -1,0 +1,10 @@
+/* Estilos específicos del dashboard */
+body.dashboard-page { background:#f4f6f8; }
+#app-main-layout { view-transition-name: dashboard-layout; }
+#app-welcome-hero { view-transition-name: dashboard-welcome; }
+#app-welcome-hero, #app-main-layout header { box-shadow:none !important; }
+#app-main-layout button:focus-visible, #app-main-layout input:focus-visible, #app-main-layout select:focus-visible, #app-main-layout textarea:focus-visible { outline:2px solid #b9e6ff; outline-offset:2px; }
+#route-loader { position:fixed; inset:0; z-index:100; display:grid; place-items:center; background:#fff; color:#080b10; font:600 13px Inter, sans-serif; }
+#route-loader[hidden] { display:none; }
+.route-loader-dot { width:7px; height:7px; border-radius:50%; background:#b9e6ff; display:inline-block; margin-right:9px; animation:loader-pulse 1s ease-in-out infinite alternate; }
+@keyframes loader-pulse { to { opacity:.25; transform:scale(.75); } }

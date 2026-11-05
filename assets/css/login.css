@@ -1,0 +1,8 @@
+/* Estilos específicos de acceso */
+body.login-page { min-height:100vh; background:#050505; }
+#auth-screen { view-transition-name: auth-screen; }
+#auth-card { view-transition-name: auth-card; }
+#auth-screen #auth-submit-btn { background:#080b10 !important; color:#fff !important; box-shadow:none !important; }
+#auth-screen #auth-submit-btn:hover { background:#b9e6ff !important; color:#080b10 !important; }
+#auth-screen input:focus { --tw-ring-color:#b9e6ff !important; border-color:#b9e6ff !important; }
+#auth-screen button:focus-visible, #auth-screen input:focus-visible { outline:2px solid #b9e6ff; outline-offset:3px; }
